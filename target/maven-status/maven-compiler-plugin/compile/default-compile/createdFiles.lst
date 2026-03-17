@@ -1,4 +1,8 @@
+com/example/techcorp/Manager.class
 com/example/techcorp/Employee.class
+com/example/techcorp/Developer.class
+com/example/techcorp/Intern.class
+com/example/techcorp/Tester.class
 com/example/techcorp/Company.class
 com/example/techcorp/Project.class
 com/example/techcorp/Main.class

@@ -23,4 +23,17 @@ public class Company {
     public void startProject(Project project) {
         projects.add(project);
     }
+
+    public void printStatus() {
+
+    System.out.println("Company employees:");
+
+    for (Employee e : employees) {
+        System.out.println(
+            e.getName() + " - " +
+            e.getRoleName() +
+            " (skill " + e.getSkill() + ")"
+        );
+    }
+    }
 }
