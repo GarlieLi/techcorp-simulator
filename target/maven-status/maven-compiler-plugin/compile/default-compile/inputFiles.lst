@@ -5,4 +5,5 @@
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Main.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Manager.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Project.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/ProjectStatus.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Tester.java

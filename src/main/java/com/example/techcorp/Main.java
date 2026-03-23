@@ -36,6 +36,9 @@ public class Main {
 
         int turns = 0;
 
+        project.start();
+        website.start(); 
+
         while (!project.isFinished() || !website.isFinished()) {
 
             turns++;
