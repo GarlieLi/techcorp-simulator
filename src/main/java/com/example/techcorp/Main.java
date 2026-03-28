@@ -3,32 +3,23 @@ package com.example.techcorp;
 public class Main {
 
     public static void main(String[] args) {
-        Company company = new Company("TechCorp", 50_000);
+        Project mobileApp = new Project("Mobile App", 50);
 
-        Employee anna = new Developer("Anna", 9, 8_000);
-        Employee piotr = new Tester("Piotr", 6, 6_500);
-        Employee ewa = new Manager("Ewa", 7, 9_000);
+        mobileApp.addWorker(new Developer("Anna", 9, 8000));
+        mobileApp.addWorker(new Tester("Piotr", 6, 6500));
+        mobileApp.addWorker(new Manager("Ewa", 7, 9000));
 
-        company.hire(anna);
-        company.hire(piotr);
-        company.hire(ewa);
-
-        Project mobileApp = new Project("Mobile App", 30);
-        mobileApp.addEmployee(anna);
-        mobileApp.addEmployee(piotr);
-        mobileApp.addEmployee(ewa);
-
-        company.startProject(mobileApp);
-
-        company.showStatus();
+        mobileApp.addWorker(new AutomatedTool("CI Pipeline", 5));
+        mobileApp.addWorker(new FreelancerBot("BotX", 4));
 
         mobileApp.start();
-        mobileApp.putOnHold();
-        mobileApp.resume();
 
         while (!mobileApp.isFinished()) {
             mobileApp.workOneTurn();
-            company.showStatus();
+            System.out.println(mobileApp.getName() + " | status: "
+                + mobileApp.getStatus()
+                + " | progress: "
+                + mobileApp.getProgress() + "/" + mobileApp.getRequiredWork());
         }
     }
 }

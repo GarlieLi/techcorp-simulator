@@ -8,7 +8,7 @@ public class Project {
     private String name;
     private int requiredWork;
     private int progress;
-    private List<Employee> team;
+    private List<Workable> team;
     private ProjectStatus status;
 
     public Project(String name, int requiredWork) {
@@ -22,11 +22,11 @@ public class Project {
         this.status = ProjectStatus.PLANNED;
     }
 
-    public void addEmployee(Employee employee) {
-        if (employee == null) {
-             throw new IllegalArgumentException("Employee cannotbe null.");
+    public void addWorker(Workable workable) {
+        if (workable == null) {
+             throw new IllegalArgumentException("Worker cannotbe null.");
         }
-        team.add(employee);
+        team.add(workable);
     }
 
     public void start() {
@@ -62,8 +62,8 @@ public class Project {
             return;
         }
 
-        for (Employee employee : team) {
-            progress += employee.work();
+        for (Workable workable: team) {
+            progress += workable.work();
         }
 
         if (progress >= requiredWork) {
@@ -89,7 +89,7 @@ public class Project {
         return progress;
     }
 
-    public List<Employee> getTeam() {
+    public List<Workable> getTeam() {
         return team;
     }
 

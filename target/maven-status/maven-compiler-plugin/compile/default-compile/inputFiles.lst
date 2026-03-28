@@ -1,6 +1,8 @@
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/AutomatedTool.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Company.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Developer.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Employee.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/FreelancerBot.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Intern.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Main.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Manager.java
