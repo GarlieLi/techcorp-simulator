@@ -8,49 +8,56 @@ public class Project {
     private String name;
     private int requiredWork;
     private int progress;
+    private List<Employee> team;
     private ProjectStatus status;
 
-    private List<Employee> team = new ArrayList<>();
-
     public Project(String name, int requiredWork) {
+        validateName(name);
+        validateRequiredWork(requiredWork);
+
         this.name = name;
         this.requiredWork = requiredWork;
         this.progress = 0;
+        this.team = new ArrayList<>();
         this.status = ProjectStatus.PLANNED;
     }
 
     public void addEmployee(Employee employee) {
+        if (employee == null) {
+             throw new IllegalArgumentException("Employee cannotbe null.");
+        }
         team.add(employee);
     }
 
-     public void start() {
+    public void start() {
          if (status == ProjectStatus.PLANNED) {
          status = ProjectStatus.IN_PROGRESS;
-         System.out.println(name + " started.");
-        }
-    }
-
-     public void cancel() {
-         if (status != ProjectStatus.FINISHED) {
-         status = ProjectStatus.CANCELLED;
-         System.out.println(name + " cancelled.");
+         System.out.println("[" + name + "] Status changed: PLANNED → IN_PROGRESS");
         }
     }
 
     public void putOnHold() {
-         if (status == ProjectStatus.IN_PROGRESS) {
-         status = ProjectStatus.ON_HOLD;
+        if (status == ProjectStatus.IN_PROGRESS) {
+            status = ProjectStatus.ON_HOLD;
+            System.out.println("[" + name + "] Status changed: IN_PROGRESS → ON_HOLD");
         }
     }
 
     public void resume() {
-         if (status == ProjectStatus.ON_HOLD) {
-         status = ProjectStatus.IN_PROGRESS;
+        if (status == ProjectStatus.ON_HOLD) {
+            status = ProjectStatus.IN_PROGRESS;
+            System.out.println("[" + name + "] Status changed: ON_HOLD → IN_PROGRESS");
+        }
+    }
+
+    public void cancel() {
+         if (status != ProjectStatus.FINISHED) {
+         status = ProjectStatus.CANCELLED;
+         System.out.println("[" + name + "] Status changed: → CANCELLED");
         }
     }
 
     public void workOneTurn() {
-
         if (status != ProjectStatus.IN_PROGRESS) {
             return;
         }
@@ -62,7 +69,7 @@ public class Project {
         if (progress >= requiredWork) {
             progress = requiredWork;
             status = ProjectStatus.FINISHED;
-            System.out.println(name + " is finished!");
+            System.out.println("[" + name + "] Status changed: IN_PROGRESS → FINISHED");
         }
     }
     
@@ -70,15 +77,36 @@ public class Project {
         return status == ProjectStatus.FINISHED;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getRequiredWork() {
+        return requiredWork;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public List<Employee> getTeam() {
+        return team;
+    }
+
      public ProjectStatus getStatus() {
         return status;
     } 
 
-     public int getProgress() {
-         return progress;
+    private void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Project name cannot be null or blank.");
+        }
     }
 
-     public int getRequiredWork() {
-        return requiredWork;
+    private void validateRequiredWork(int requiredWork) {
+        if (requiredWork <= 0) {
+            throw new IllegalArgumentException("Required work must be greater than 0.");
+        }
     }
+
 }

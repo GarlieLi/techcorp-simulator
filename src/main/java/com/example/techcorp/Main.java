@@ -3,73 +3,32 @@ package com.example.techcorp;
 public class Main {
 
     public static void main(String[] args) {
+        Company company = new Company("TechCorp", 50_000);
 
-        Company company = new Company("TechCorp", 50000);
-
-        Employee anna = new Developer("Anna", 8, 7000);
-        Employee piotr = new Tester("Piotr", 6, 6500);
-        Employee maria = new Manager("Maria", 9, 9000);
-        Employee tom = new Intern("Tom", 4, 2000); 
+        Employee anna = new Developer("Anna", 9, 8_000);
+        Employee piotr = new Tester("Piotr", 6, 6_500);
+        Employee ewa = new Manager("Ewa", 7, 9_000);
 
         company.hire(anna);
         company.hire(piotr);
-        company.hire(maria);
-        company.hire(tom);
+        company.hire(ewa);
 
-        company.printStatus();
+        Project mobileApp = new Project("Mobile App", 30);
+        mobileApp.addEmployee(anna);
+        mobileApp.addEmployee(piotr);
+        mobileApp.addEmployee(ewa);
 
-        Project project = new Project("Mobile App", 50);
+        company.startProject(mobileApp);
 
-        project.addEmployee(anna);
-        project.addEmployee(piotr);
-        project.addEmployee(maria);
+        company.showStatus();
 
-        company.startProject(project);
+        mobileApp.start();
+        mobileApp.putOnHold();
+        mobileApp.resume();
 
-        Project website = new Project("Website", 40);
-
-        website.addEmployee(anna);
-        website.addEmployee(maria);
-        website.addEmployee(tom);
-
-        company.startProject(website);
-
-        int turns = 0;
-
-        project.start();
-        website.start(); 
-
-        while (!project.isFinished() || !website.isFinished()) {
-
-            turns++;
-
-            if (!project.isFinished()) {
-                project.workOneTurn();
-            }
-
-            if (!website.isFinished()) {
-                website.workOneTurn();
-            }
-
-            System.out.println("Turn " + turns);
-
-            System.out.println(
-                "Mobile App: " +
-                project.getProgress() +
-                "/" +
-                project.getRequiredWork()
-            );
-
-            System.out.println(
-                "Website: " +
-                website.getProgress() +
-                "/" +
-                website.getRequiredWork()
-            );
-
-            System.out.println();
+        while (!mobileApp.isFinished()) {
+            mobileApp.workOneTurn();
+            company.showStatus();
         }
-
-        System.out.println("Simulation finished.");
     }
 }

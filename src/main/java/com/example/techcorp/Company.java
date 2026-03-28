@@ -24,16 +24,26 @@ public class Company {
         projects.add(project);
     }
 
-    public void printStatus() {
+    public void showStatus() {
+        System.out.println("=== COMPANY STATUS ===");
+        System.out.println("Name: " + name);
+        System.out.println("Cash: " + budget);
+        System.out.println("Employees: " + employees.size());
+        System.out.println("Projects: " + projects.size());
+        System.out.println();
 
-    System.out.println("Company employees:");
+        if (projects.isEmpty()) {
+            System.out.println("No active projects.");
+        } else {
+            System.out.println("Projects:");
+            for (Project project : projects) {
+                System.out.println("- " + project.getName()
+                + " | status: " + project.getStatus()
+                + " | progress: " + project.getProgress() + "/" + project.getRequiredWork()
+                + " | finished: " + project.isFinished());
+            }
+        }
 
-    for (Employee e : employees) {
-        System.out.println(
-            e.getName() + " - " +
-            e.getRoleName() +
-            " (skill " + e.getSkill() + ")"
-        );
-    }
+        System.out.println("======================");
     }
 }
