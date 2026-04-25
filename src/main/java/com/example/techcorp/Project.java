@@ -62,9 +62,15 @@ public class Project {
             return;
         }
 
+        int workDone = 0;
+
         for (Workable workable: team) {
             progress += workable.work();
         }
+
+        progress += workDone;
+
+        System.out.println("[" + name + "] +" + workDone + " progress → " + progress + "/" + requiredWork);
 
         if (progress >= requiredWork) {
             progress = requiredWork;

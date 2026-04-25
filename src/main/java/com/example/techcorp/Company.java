@@ -16,6 +16,7 @@ public class Company {
         this.budget = budget;
     }
 
+    // --- Existing methods (keep them) ---
     public void hire(Employee employee) {
         employees.add(employee);
     }
@@ -24,6 +25,33 @@ public class Company {
         projects.add(project);
     }
 
+    // --- ADD: getters required by GameEngine / UI ---
+    public String getName() {
+        return name;
+    }
+
+    public double getCash() {   // PDF expects "getCash"
+        return budget;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    // --- ADD: alias methods (PDF naming) ---
+    public void addEmployee(Employee employee) {
+        hire(employee);
+    }
+
+    public void addProject(Project project) {
+        startProject(project);
+    }
+
+    // --- Your existing display method ---
     public void showStatus() {
         System.out.println("=== COMPANY STATUS ===");
         System.out.println("Name: " + name);
