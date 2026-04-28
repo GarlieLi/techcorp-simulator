@@ -54,6 +54,9 @@ public class GameEngine {
         for (Project project : company.getProjects()) {
             project.workOneTurn();
         }
+
+        company.paySalaries();
+        
         ui.showMessage("Projects worked for one turn.");
     }
 

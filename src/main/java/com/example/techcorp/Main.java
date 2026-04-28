@@ -9,12 +9,22 @@ public class Main {
         company.hire(new Tester("Piotr", 6, 6_500));
         company.hire(new Manager("Ewa", 7, 9_000));
 
+        System.out.println("=== Salary Overview ===");
+        for (Employee employee : company.getEmployees()) {
+            if (employee instanceof Payable payable) {
+                System.out.println(employee.getName() + ": " + payable.calculateSalary());
+            }
+        }
+        System.out.println();
+
         Project mobileApp = new Project("Mobile App", 30);
         Project website = new Project("Website", 20);
 
-        for (var employee : company.getEmployees()) {
-            mobileApp.addWorker(employee); 
-            website.addWorker(employee);
+        for (Employee employee : company.getEmployees()) {
+            if (employee instanceof Workable workable) {
+                mobileApp.addWorker(workable);
+                website.addWorker(workable);
+            }
         }
 
         company.startProject(mobileApp);

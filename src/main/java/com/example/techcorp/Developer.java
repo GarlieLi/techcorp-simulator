@@ -1,6 +1,6 @@
 package com.example.techcorp;
 
-public class Developer extends Employee {
+public class Developer extends Employee implements Workable, Payable{
 
     public Developer(String name, int skill, double salary) {
         super(name, skill, salary);
@@ -8,7 +8,12 @@ public class Developer extends Employee {
 
     @Override
     public int work() {
-        return getSkill();
+        return getSkill() * 2;
+    }
+
+    @Override
+    public double calculateSalary() {
+        return getSalary();
     }
 
     @Override

@@ -1,0 +1,13 @@
+package com.example.techcorp;
+
+public class TestingTask extends Task {
+
+    public TestingTask(String title) {
+        super(title);
+    }
+
+    @Override
+    public void execute() {
+        System.out.println("Testing task: " + title);
+    }
+}

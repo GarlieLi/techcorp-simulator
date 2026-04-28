@@ -65,7 +65,7 @@ public class Project {
         int workDone = 0;
 
         for (Workable workable: team) {
-            progress += workable.work();
+            workDone += workable.work();
         }
 
         progress += workDone;
