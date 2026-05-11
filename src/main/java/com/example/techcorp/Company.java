@@ -12,16 +12,47 @@ public class Company {
     private List<Project> projects = new ArrayList<>();
 
     public Company(String name, double budget) {
+
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Company name cannot be empty.");
+        }
+
+        if (budget < 0) {
+            throw new IllegalArgumentException("Budget cannot be negative.");
+        }
+
         this.name = name;
         this.budget = budget;
+
+        assert this.name.equals(name) :
+            "Company name was not assigned correctly.";
+
+        assert this.budget == budget :
+            "Budget was not assigned correctly.";
     }
 
     public void hire(Employee employee) {
+
+        if (employee == null) {
+            throw new IllegalArgumentException("Employee cannot be null.");
+        }
+
         employees.add(employee);
+
+        assert employees.contains(employee) :
+            "Employee was not added correctly.";
     }
 
     public void startProject(Project project) {
+
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null.");
+        }
+
         projects.add(project);
+
+        assert projects.contains(project) :
+            "Project was not added correctly.";
     }
 
     public String getName() {
@@ -49,6 +80,7 @@ public class Company {
     }
 
     public double calculateTotalSalaries() {
+
         double total = 0;
 
         for (Employee e : employees) {
@@ -56,25 +88,43 @@ public class Company {
                 total += p.calculateSalary();
             }
         }
+
+        assert total >= 0 :
+            "Total salaries should never be negative.";
 
         return total;
     }
 
     public void paySalaries() {
-        double total = 0;
-        
-        for (Employee e : employees) {
-            if (e instanceof Payable p) {
-                total += p.calculateSalary();
-            }
+
+        double total = calculateTotalSalaries();
+
+        if (budget < total) {
+            throw new IllegalStateException(
+                    "Not enough budget to pay salaries."
+            );
         }
+
+        double oldBudget = budget;
 
         budget -= total;
 
-        System.out.println("Salaries paid: " + total + " | Remaining cash: " + budget);
-    }
+        assert budget == oldBudget - total :
+            "Salary payment calculation failed.";
 
+        assert budget >= 0 :
+            "Budget should never become negative.";
+
+        System.out.println(
+            "Salaries paid: "
+            + total
+            + " | Remaining cash: "
+            + budget
+        );
+    }
+  
     public void showStatus() {
+
         System.out.println("=== COMPANY STATUS ===");
         System.out.println("Name: " + name);
         System.out.println("Cash: " + budget);
@@ -84,13 +134,19 @@ public class Company {
 
         if (projects.isEmpty()) {
             System.out.println("No active projects.");
+
         } else {
+
             System.out.println("Projects:");
+
             for (Project project : projects) {
-                System.out.println("- " + project.getName()
-                + " | status: " + project.getStatus()
-                + " | progress: " + project.getProgress() + "/" + project.getRequiredWork()
-                + " | finished: " + project.isFinished());
+
+                System.out.println(
+                    "- " + project.getName()
+                    + " | status: " + project.getStatus()
+                    + " | progress: " + project.getProgress() + "/" + project.getRequiredWork()
+                    + " | finished: " + project.isFinished()
+                );
             }
         }
 

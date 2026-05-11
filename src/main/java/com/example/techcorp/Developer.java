@@ -8,12 +8,23 @@ public class Developer extends Employee implements Workable, Payable{
 
     @Override
     public int work() {
-        return getSkill() * 2;
+        int productivity = getSkill() * 2;
+
+        assert productivity > 0 :
+            "Developer productivity should be positive.";
+
+        return productivity;
     }
 
     @Override
     public double calculateSalary() {
-        return getSalary();
+        
+        double result = getSalary();
+
+        assert result >= 0 :
+            "Salary should not be negative.";
+
+        return result;
     }
 
     @Override

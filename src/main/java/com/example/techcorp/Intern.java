@@ -8,7 +8,13 @@ public class Intern extends Employee {
 
     @Override
     public int work() {
-        return getSkill() / 4;
+
+        int productivity = Math.max(1, getSkill() / 4);
+
+        assert productivity > 0 :
+            "Intern productivity should be positive.";
+
+        return productivity;
     }
 
     @Override

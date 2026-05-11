@@ -8,12 +8,24 @@ public class Manager extends Employee implements Workable, Payable {
 
     @Override
     public int work() {
-        return getSkill() / 3;
+
+        int productivity = Math.max(1, getSkill() / 3);
+
+        assert productivity > 0 :
+            "Manager productivity should be positive.";
+
+        return productivity;
     }
 
     @Override
     public double calculateSalary() {
-        return getSalary();
+
+        double result = getSalary();
+
+        assert result >= 0 :
+             "Salary should not be negative.";
+
+        return result;
     }
 
     @Override
