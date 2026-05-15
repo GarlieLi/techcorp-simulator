@@ -17,7 +17,13 @@ public class ConsoleUI {
         System.out.println("1. Show company status");
         System.out.println("2. Start planned projects");
         System.out.println("3. Work on projects");
-        System.out.println("4. Exit game");
+        System.out.println("4. Put project on hold");
+        System.out.println("5. Resume project");
+        System.out.println("6. Cancel project");
+        System.out.println("7. Hire intern");
+        System.out.println("8. Hire FreelancerBot");
+        System.out.println("9. Buy AutomatedTool");
+        System.out.println("0. Exit game");
     }
 
     public int readMenuChoice() {
@@ -37,6 +43,53 @@ public class ConsoleUI {
         return choice;
     }
 
+    public int chooseProject(Company company) {
+
+        if (company == null) {
+            throw new IllegalArgumentException(
+                    "Company cannot be null."
+            );
+        }
+
+        if (company.getProjects().isEmpty()) {
+            return -1;
+        }
+
+        System.out.println("Select project:");
+
+        for (int i = 0; i < company.getProjects().size(); i++) {
+
+            Project project = company.getProjects().get(i);
+
+            System.out.println(
+                    (i + 1)
+                    + ". "
+                    + project.getName()
+                    + " ("
+                    + project.getStatus()
+                    + ")"
+            );
+        }
+
+        System.out.print("Enter project number: ");
+
+        if (!scanner.hasNextInt()) {
+            scanner.nextLine();
+            return -1;
+        }
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        if (choice < 1
+                || choice > company.getProjects().size()) {
+
+            return -1;
+        }
+
+        return choice - 1;
+    }
+
     public void showCompanyStatus(Company company) {
         
         if (company == null) {
@@ -45,6 +98,7 @@ public class ConsoleUI {
 
         System.out.println("Company: " + company.getName());
         System.out.println("Cash: " + company.getCash());
+        System.out.println("Employees: "+ company.getEmployees().size());
         System.out.println("Projects:");
 
         if (company.getProjects().isEmpty()) {

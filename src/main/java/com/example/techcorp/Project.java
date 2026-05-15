@@ -8,16 +8,25 @@ public class Project {
     private String name;
     private int requiredWork;
     private int progress;
+
+    private double reward;
+    private boolean rewardPaid;
+
     private List<Workable> team;
     private ProjectStatus status;
 
-    public Project(String name, int requiredWork) {
+    public Project(String name, int requiredWork, double reward) {
 
         validateName(name);
         validateRequiredWork(requiredWork);
+        validateReward(reward);
 
         this.name = name;
         this.requiredWork = requiredWork;
+
+        this.reward = reward;
+        this.rewardPaid = false;
+
         this.progress = 0;
         this.team = new ArrayList<>();
         this.status = ProjectStatus.PLANNED;
@@ -181,6 +190,18 @@ public class Project {
         return status;
     } 
 
+        public double getReward() {
+        return reward;
+    }
+        
+    public boolean isRewardPaid() {
+        return rewardPaid;
+    }
+    
+    public void markRewardPaid() {
+        rewardPaid = true;
+    }
+
     private void validateName(String name) {
 
         if (name == null || name.isBlank()) {
@@ -197,6 +218,16 @@ public class Project {
 
             throw new IllegalArgumentException(
                 "Required work must be greater than 0."
+            );
+        }
+    }
+
+    private void validateReward(double reward) {
+        
+        if (reward < 0) {
+            
+            throw new IllegalArgumentException(
+                "Reward cannot be negative."
             );
         }
     }

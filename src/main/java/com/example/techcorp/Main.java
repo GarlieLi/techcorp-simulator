@@ -31,8 +31,8 @@ public class Main {
             
             System.out.println();
             
-            Project mobileApp = new Project("Mobile App", 30);
-            Project website = new Project("Website", 20);
+            Project mobileApp = new Project("Mobile App", 30, 15000);
+            Project website = new Project("Website", 20, 10000);
             
             for (Employee employee : company.getEmployees()) {
                 

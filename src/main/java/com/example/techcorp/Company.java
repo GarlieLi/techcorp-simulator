@@ -122,6 +122,57 @@ public class Company {
             + budget
         );
     }
+    
+    public void collectProjectRewards() {
+        
+        for (Project project : projects) {
+            
+            if (project.isFinished()
+                && !project.isRewardPaid()) {
+
+            budget += project.getReward();
+
+            project.markRewardPaid();
+
+            System.out.println(
+                "Reward received from "
+                + project.getName()
+                + ": "
+                + project.getReward());
+            }
+        }
+    }
+    
+    public void spendBudget(double amount) {
+        
+        if (amount < 0) {
+            throw new IllegalArgumentException(
+                "Amount cannot be negative."
+            );
+        }
+        
+        if (budget < amount) {
+            throw new IllegalStateException(
+                "Not enough budget."
+            );
+        }
+        
+        budget -= amount;
+        
+        assert budget >= 0 :
+        "Budget should never become negative.";
+    }
+
+    public boolean canAfford(double amount) {
+        
+        if (amount < 0) {
+            throw new IllegalArgumentException(
+                "Amount cannot be negative."
+            );
+        }
+        
+        return budget >= amount;
+    }
   
     public void showStatus() {
 
