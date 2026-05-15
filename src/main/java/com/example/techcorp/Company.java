@@ -173,14 +173,33 @@ public class Company {
         
         return budget >= amount;
     }
-  
+    
     public void showStatus() {
 
         System.out.println("=== COMPANY STATUS ===");
         System.out.println("Name: " + name);
         System.out.println("Cash: " + budget);
-        System.out.println("Employees: " + employees.size());
+
+        System.out.println("Employees (" + employees.size() + "):");
+        
+        if (employees.isEmpty()) {
+
+            System.out.println("No employees.");
+        } else {
+
+            for (Employee employee : employees) {
+                
+                System.out.println(
+                    "- " + employee.getName()
+                    + " | role: " + employee.getRoleName()
+                     + " | skill: " + employee.getSkill()
+                     + " | salary: " + employee.getSalary()
+                );
+            }
+        }
+            
         System.out.println("Projects: " + projects.size());
+
         System.out.println();
 
         if (projects.isEmpty()) {

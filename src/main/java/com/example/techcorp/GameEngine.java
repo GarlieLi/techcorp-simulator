@@ -2,6 +2,10 @@ package com.example.techcorp;
 
 public class GameEngine {
 
+    private static final double INTERN_HIRE_COST = 2000;
+    private static final double FREELANCER_BOT_COST = 4000;
+    private static final double AUTOMATED_TOOL_COST = 3000;
+
     private Company company;
     private ConsoleUI ui;
     private boolean running;
@@ -41,7 +45,7 @@ public class GameEngine {
                 "Turn number should always be positive.";
 
             ui.showTurnHeader(turn);
-            ui.showCompanyStatus(company);
+            ui.showTurnSummary(company);
             ui.showMainMenu();
 
             int choice = ui.readMenuChoice();
@@ -122,108 +126,109 @@ public class GameEngine {
     }
 
     private void putProjectsOnHold() {
-        
-        for (Project project : company.getProjects()) {
-            
-            if (project.getStatus() == ProjectStatus.IN_PROGRESS) {
-                project.putOnHold();
-            }
+
+        int index = ui.chooseProject(
+                company,
+                "No in-progress projects available to put on hold.",
+                ProjectStatus.IN_PROGRESS
+        );
+
+        if (index < 0) {
+            return;
         }
-        
-        ui.showMessage("All active projects put on hold.");
+
+        Project project = company.getProjects().get(index);
+        project.putOnHold();
+        ui.showMessage(project.getName() + " put on hold.");
     }
 
     private void resumeProjects() {
-        
-        for (Project project : company.getProjects()) {
-            
-            if (project.getStatus() == ProjectStatus.ON_HOLD) {
-                project.resume();
-            }
+
+        int index = ui.chooseProject(
+                company,
+                "No projects available to resume.",
+                ProjectStatus.ON_HOLD
+        );
+
+        if (index < 0) {
+            return;
         }
-        
-        ui.showMessage("All on-hold projects resumed.");
+
+        Project project = company.getProjects().get(index);
+        project.resume();
+        ui.showMessage(project.getName() + " resumed.");
     }
 
     private void cancelProjects() {
-        
-        for (Project project : company.getProjects()) {
-            
-            if (!project.isFinished()) {
-                project.cancel();
-            }
+
+        int index = ui.chooseProject(
+                company,
+                "No projects available to cancel.",
+                ProjectStatus.PLANNED,
+                ProjectStatus.IN_PROGRESS,
+                ProjectStatus.ON_HOLD
+        );
+
+        if (index < 0) {
+            return;
         }
-        
-        ui.showMessage("All unfinished projects cancelled.");
+
+        Project project = company.getProjects().get(index);
+        project.cancel();
+        ui.showMessage(project.getName() + " cancelled.");
     }
 
     private void hireIntern() {
-        
-        try {
-            
-            company.spendBudget(2000);
-            Intern intern = new Intern("Intern " + turn, 2, 1000);
-            company.hire(intern);
-            
-            for (Project project : company.getProjects()) {
-                
-                if (project.getStatus() != ProjectStatus.CANCELLED) {
-                    project.addWorker(intern);
-                }
-            }
-            
-            ui.showMessage("Intern hired successfully.");
-        } catch (IllegalStateException e) {
-            
+
+        if (!company.canAfford(INTERN_HIRE_COST)) {
             ui.showMessage("Not enough budget to hire intern.");
+            return;
         }
+
+        company.spendBudget(INTERN_HIRE_COST);
+        Intern intern = new Intern("Intern " + turn, 2, 1000);
+        company.hire(intern);
+        addWorkerToActiveProjects(intern);
+
+        ui.showMessage("Intern hired successfully.");
     }
 
     private void hireFreelancerBot() {
-        
-        try {
-            
-            company.spendBudget(4000);
-            FreelancerBot bot = new FreelancerBot("Bot " + turn, 5);
-            
-            for (Project project : company.getProjects()) {
-                
-                if (project.getStatus() != ProjectStatus.CANCELLED) {
-                    project.addWorker(bot);
-                }
-            }
-            
-            ui.showMessage("FreelancerBot added to projects.");
 
-        } catch (IllegalStateException e) {
-            
-            ui.showMessage(
-                "Not enough budget to hire FreelancerBot."
-            );
+        if (!company.canAfford(FREELANCER_BOT_COST)) {
+            ui.showMessage("Not enough budget to hire FreelancerBot.");
+            return;
         }
+
+        company.spendBudget(FREELANCER_BOT_COST);
+        FreelancerBot bot = new FreelancerBot("Bot " + turn, 5);
+        addWorkerToActiveProjects(bot);
+
+        ui.showMessage("FreelancerBot added to projects.");
     }
 
     private void buyAutomatedTool() {
-        
-        try {
-            
-            company.spendBudget(3000);
-            AutomatedTool tool = new AutomatedTool("Tool " + turn, 3);
-            
-            for (Project project : company.getProjects()) {
-                
-                if (project.getStatus() != ProjectStatus.CANCELLED) {
-                    project.addWorker(tool);
-                }
-            }
-            
-            ui.showMessage("AutomatedTool added to projects.");
 
-        } catch (IllegalStateException e) {
-            
-            ui.showMessage(
-                "Not enough budget to buy AutomatedTool."
-            );
+        if (!company.canAfford(AUTOMATED_TOOL_COST)) {
+            ui.showMessage("Not enough budget to buy AutomatedTool.");
+            return;
+        }
+
+        company.spendBudget(AUTOMATED_TOOL_COST);
+        AutomatedTool tool = new AutomatedTool("Tool " + turn, 3);
+        addWorkerToActiveProjects(tool);
+
+        ui.showMessage("AutomatedTool added to projects.");
+    }
+
+    private void addWorkerToActiveProjects(Workable worker) {
+
+        for (Project project : company.getProjects()) {
+
+            if (project.getStatus() != ProjectStatus.CANCELLED
+                    && project.getStatus() != ProjectStatus.FINISHED) {
+                project.addWorker(worker);
+            }
         }
     }
 

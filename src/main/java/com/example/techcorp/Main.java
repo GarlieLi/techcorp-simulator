@@ -15,22 +15,6 @@ public class Main {
             assert !company.getEmployees().isEmpty() :
                 "Company should have employees.";
             
-            System.out.println("=== Salary Overview ===");
-            
-            for (Employee employee : company.getEmployees()) {
-                
-                if (employee instanceof Payable payable) {
-                    
-                    System.out.println(
-                        employee.getName()
-                        + ": "
-                        + payable.calculateSalary()
-                    );
-                }
-            }
-            
-            System.out.println();
-            
             Project mobileApp = new Project("Mobile App", 30, 15000);
             Project website = new Project("Website", 20, 10000);
             
