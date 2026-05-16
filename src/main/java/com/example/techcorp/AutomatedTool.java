@@ -38,4 +38,8 @@ public class AutomatedTool implements Workable {
     public String getName() {
         return name;
     }
+
+    public int getProductivity() {
+        return productivity;
+    }
 }

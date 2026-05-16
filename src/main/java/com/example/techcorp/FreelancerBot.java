@@ -43,4 +43,8 @@ public class FreelancerBot implements Workable {
     public String getName() {
         return name;
     }
+
+    public int getEfficiency() {
+        return efficiency;
+    }
 }

@@ -17,14 +17,12 @@ public class ConsoleUI {
     public void showMainMenu() {
         System.out.println("Choose an action:");
         System.out.println("1. Show company status");
-        System.out.println("2. Start planned projects");
-        System.out.println("3. Work on projects");
+        System.out.println("2. Accept project");
+        System.out.println("3. Work on active project");
         System.out.println("4. Put project on hold");
         System.out.println("5. Resume project");
         System.out.println("6. Cancel project");
-        System.out.println("7. Hire intern (cost: 2000)");
-        System.out.println("8. Hire FreelancerBot (cost: 4000)");
-        System.out.println("9. Buy AutomatedTool (cost: 3000)");
+        System.out.println("7. Expand team");
         System.out.println("0. Exit game");
     }
 
@@ -136,6 +134,27 @@ public class ConsoleUI {
         return false;
     }
 
+    public void showExpandTeamMenu() {
+
+        System.out.println();
+        System.out.println("=== EXPAND TEAM ===");
+        System.out.println();
+        System.out.println("1. Hire Intern");
+        System.out.println("   Hiring cost: 2000");
+        System.out.println("   Salary per turn: 1000");
+        System.out.println("   Productivity: 1");
+        System.out.println();
+        System.out.println("2. Hire FreelancerBot");
+        System.out.println("   One-time cost: 4000");
+        System.out.println("   Productivity: 5");
+        System.out.println();
+        System.out.println("3. Buy AutomatedTool");
+        System.out.println("   One-time cost: 3000");
+        System.out.println("   Productivity: 3");
+        System.out.println();
+        System.out.println("0. Back");
+    }
+
     public void showTurnSummary(Company company) {
 
         if (company == null) {
@@ -151,15 +170,25 @@ public class ConsoleUI {
                 + formatAmount(company.calculateTotalSalaries())
                 + ")"
         );
-        System.out.println("Projects:");
+
+        System.out.println("Active projects:");
 
         if (company.getProjects().isEmpty()) {
 
-            System.out.println("No projects.");
+            System.out.println("None");
 
         } else {
 
+            boolean hasActiveProject = false;
+
             for (Project project : company.getProjects()) {
+
+                if (project.getStatus() == ProjectStatus.FINISHED
+                        || project.getStatus() == ProjectStatus.CANCELLED) {
+                    continue;
+                }
+
+                hasActiveProject = true;
 
                 System.out.println(
                         "- " + project.getName()
@@ -168,7 +197,55 @@ public class ConsoleUI {
                         + "/" + project.getRequiredWork()
                 );
             }
+
+            if (!hasActiveProject) {
+                System.out.println("None");
+            }
         }
+    }
+
+    public int chooseAvailableProject(Company company) {
+
+        if (company == null) {
+            throw new IllegalArgumentException("Company cannot be null.");
+        }
+
+        if (company.getAvailableProjects().isEmpty()) {
+            System.out.println("No available projects to accept.");
+            return -1;
+        }
+
+        System.out.println();
+        System.out.println("=== AVAILABLE PROJECTS ===");
+        System.out.println();
+
+        for (int i = 0; i < company.getAvailableProjects().size(); i++) {
+
+            Project project = company.getAvailableProjects().get(i);
+
+            System.out.println((i + 1) + ". " + project.getName());
+            System.out.println("   Work: " + project.getRequiredWork());
+            System.out.println("   Reward: " + formatAmount(project.getReward()));
+            System.out.println();
+        }
+
+        System.out.print("Enter project number: ");
+
+        if (!scanner.hasNextInt()) {
+            scanner.nextLine();
+            System.out.println("Invalid project selection.");
+            return -1;
+        }
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        if (choice < 1 || choice > company.getAvailableProjects().size()) {
+            System.out.println("Invalid project selection.");
+            return -1;
+        }
+
+        return choice - 1;
     }
 
     public void showCompanyStatus(Company company) {
@@ -182,44 +259,50 @@ public class ConsoleUI {
         System.out.println("Company: " + company.getName());
         System.out.println("Cash: " + formatAmount(company.getCash()));
         System.out.println(
-                "Total salaries: " + formatAmount(company.calculateTotalSalaries())
+            "Total salaries: " + formatAmount(company.calculateTotalSalaries())
         );
-        System.out.println("Employees (" + company.getEmployees().size() + "):");
-
-        if (company.getEmployees().isEmpty()) {
-
-            System.out.println("No employees.");
-
-        } else {
-
-            for (Employee employee : company.getEmployees()) {
-
-                System.out.println(
-                    "- " + employee.getName()
-                    + " | role: " + employee.getRoleName()
-                    + " | skill: " + employee.getSkill()
-                    + " | salary: " + formatAmount(employee.getSalary())
-                );
-            }
-        }
 
         System.out.println();
-        System.out.println("Projects:");
+        System.out.println("Employees: " + company.getEmployees().size());
+        System.out.println("FreelancerBots: " + company.getFreelancerBots().size());
+        System.out.println("AutomatedTools: " + company.getAutomatedTools().size());
+        System.out.println();
+        System.out.println("Projects Summary:");
+        System.out.println("- Planned: " + company.countProjectsByStatus(ProjectStatus.PLANNED));
+        System.out.println("- In Progress: " + company.countProjectsByStatus(ProjectStatus.IN_PROGRESS));
+        System.out.println("- On Hold: " + company.countProjectsByStatus(ProjectStatus.ON_HOLD));
+        System.out.println("- Finished: " + company.countProjectsByStatus(ProjectStatus.FINISHED));
+        System.out.println("- Cancelled: " + company.countProjectsByStatus(ProjectStatus.CANCELLED));
+        System.out.println();
+        System.out.println("Current Active Projects:");
 
         if (company.getProjects().isEmpty()) {
 
-            System.out.println("No projects available.");
+            System.out.println("None");
 
         } else {
-            
+
+            boolean hasActiveProject = false;
+
             for (Project project : company.getProjects()) {
-                
+
+                if (project.getStatus() == ProjectStatus.FINISHED
+                        || project.getStatus() == ProjectStatus.CANCELLED) {
+                    continue;
+                }
+
+                hasActiveProject = true;
+
                 System.out.println(
-                    "- " + project.getName()
-                    + " | status: " + project.getStatus()
-                    + " | progress: " + project.getProgress()
-                    + " / " + project.getRequiredWork()
+                        "- " + project.getName()
+                        + " | progress: " + project.getProgress()
+                        + "/" + project.getRequiredWork()
+                        + " | reward: " + formatAmount(project.getReward())
                 );
+            }
+
+            if (!hasActiveProject) {
+                System.out.println("None");
             }
         }
     }

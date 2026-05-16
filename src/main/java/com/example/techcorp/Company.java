@@ -10,6 +10,14 @@ public class Company {
 
     private List<Employee> employees = new ArrayList<>();
     private List<Project> projects = new ArrayList<>();
+    private List<Project> availableProjects = new ArrayList<>();
+
+    private List<FreelancerBot> freelancerBots = new ArrayList<>();
+    private List<AutomatedTool> automatedTools = new ArrayList<>();
+
+    private int internCounter = 0;
+    private int freelancerBotCounter = 0;
+    private int automatedToolCounter = 0;
 
     public Company(String name, double budget) {
 
@@ -69,6 +77,109 @@ public class Company {
 
     public List<Project> getProjects() {
         return projects;
+    }
+
+    public List<Project> getAvailableProjects() {
+        return availableProjects;
+    }
+
+    public void addAvailableProject(Project project) {
+
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null.");
+        }
+
+        availableProjects.add(project);
+    }
+
+    public void acceptProject(Project project) {
+
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null.");
+        }
+
+        if (!availableProjects.remove(project)) {
+            throw new IllegalStateException("Project is not available to accept.");
+        }
+
+        projects.add(project);
+        assignWorkforceToProject(project);
+    }
+
+    public int countProjectsByStatus(ProjectStatus status) {
+
+        int count = 0;
+
+        for (Project project : projects) {
+
+            if (project.getStatus() == status) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private void assignWorkforceToProject(Project project) {
+
+        for (Employee employee : employees) {
+
+            if (employee instanceof Workable workable) {
+                project.addWorker(workable);
+            }
+        }
+
+        for (FreelancerBot bot : freelancerBots) {
+            project.addWorker(bot);
+        }
+
+        for (AutomatedTool tool : automatedTools) {
+            project.addWorker(tool);
+        }
+    }
+
+    public List<FreelancerBot> getFreelancerBots() {
+        return freelancerBots;
+    }
+
+    public List<AutomatedTool> getAutomatedTools() {
+        return automatedTools;
+    }
+
+    public String nextInternName() {
+
+        internCounter++;
+        return "Intern" + internCounter;
+    }
+
+    public String nextFreelancerBotName() {
+
+        freelancerBotCounter++;
+        return "FreelancerBot" + freelancerBotCounter;
+    }
+
+    public String nextAutomatedToolName() {
+
+        automatedToolCounter++;
+        return "AutomatedTool" + automatedToolCounter;
+    }
+
+    public void addFreelancerBot(FreelancerBot bot) {
+
+        if (bot == null) {
+            throw new IllegalArgumentException("FreelancerBot cannot be null.");
+        }
+
+        freelancerBots.add(bot);
+    }
+
+    public void addAutomatedTool(AutomatedTool tool) {
+
+        if (tool == null) {
+            throw new IllegalArgumentException("AutomatedTool cannot be null.");
+        }
+
+        automatedTools.add(tool);
     }
 
     public void addEmployee(Employee employee) {

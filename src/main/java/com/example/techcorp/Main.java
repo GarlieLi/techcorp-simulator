@@ -14,24 +14,14 @@ public class Main {
 
             assert !company.getEmployees().isEmpty() :
                 "Company should have employees.";
-            
-            Project mobileApp = new Project("Mobile App", 30, 15000);
-            Project website = new Project("Website", 20, 10000);
-            
-            for (Employee employee : company.getEmployees()) {
-                
-                if (employee instanceof Workable workable) {
-                    
-                    mobileApp.addWorker(workable);
-                    website.addWorker(workable);
-                }
-            }
-            
-            company.startProject(mobileApp);
-            company.startProject(website);
-            
-            assert company.getProjects().size() == 2 :
-                "Projects were not added correctly.";
+
+            company.addAvailableProject(new Project("Website", 20, 10000));
+            company.addAvailableProject(new Project("Mobile App", 30, 15000));
+            company.addAvailableProject(new Project("AI Chatbot", 60, 50000));
+            company.addAvailableProject(new Project("Legacy Migration", 90, 30000));
+
+            assert company.getAvailableProjects().size() == 4 :
+                "Available projects were not added correctly.";
                 
             ConsoleUI ui = new ConsoleUI();
             GameEngine engine = new GameEngine(company, ui);

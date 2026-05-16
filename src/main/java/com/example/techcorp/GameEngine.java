@@ -65,9 +65,9 @@ public class GameEngine {
 
             case 1 -> ui.showCompanyStatus(company);
 
-            case 2 -> startPlannedProjects();
+            case 2 -> acceptProject();
 
-            case 3 -> workOnProjects();
+            case 3 -> workOnProject();
 
             case 4 -> putProjectsOnHold();
 
@@ -75,11 +75,7 @@ public class GameEngine {
 
             case 6 -> cancelProjects();
 
-            case 7 -> hireIntern();
-
-            case 8 -> hireFreelancerBot();
-
-            case 9 -> buyAutomatedTool();
+            case 7 -> expandTeam();
 
             case 0 -> {
                 running = false;
@@ -90,26 +86,43 @@ public class GameEngine {
         }
     }
 
-    private void startPlannedProjects() {
+    private void acceptProject() {
 
-        for (Project project : company.getProjects()) {
+        int index = ui.chooseAvailableProject(company);
 
-            if (project.getStatus() == ProjectStatus.PLANNED) {
-                project.start();
-            }
+        if (index < 0) {
+            return;
         }
 
-        ui.showMessage("All planned projects have been started.");
+        Project project = company.getAvailableProjects().get(index);
+        company.acceptProject(project);
+
+        ui.showMessage(project.getName() + " accepted and added to active projects.");
     }
 
-    private void workOnProjects() {
+    private void workOnProject() {
 
-        for (Project project : company.getProjects()) {
-            project.workOneTurn();
+        int index = ui.chooseProject(
+                company,
+                "No active projects available to work on.",
+                ProjectStatus.PLANNED,
+                ProjectStatus.IN_PROGRESS
+        );
+
+        if (index < 0) {
+            return;
         }
 
+        Project project = company.getProjects().get(index);
+
+        if (project.getStatus() == ProjectStatus.PLANNED) {
+            project.start();
+        }
+
+        project.workOneTurn();
+
         try {
-            
+
             company.paySalaries();
             company.collectProjectRewards();
 
@@ -121,8 +134,8 @@ public class GameEngine {
 
             return;
         }
-        
-        ui.showMessage("Projects worked for one turn.");
+
+        ui.showMessage(project.getName() + " worked for one turn.");
     }
 
     private void putProjectsOnHold() {
@@ -178,6 +191,30 @@ public class GameEngine {
         ui.showMessage(project.getName() + " cancelled.");
     }
 
+    private void expandTeam() {
+
+        while (true) {
+
+            ui.showExpandTeamMenu();
+            int choice = ui.readMenuChoice();
+
+            switch (choice) {
+
+                case 1 -> hireIntern();
+
+                case 2 -> hireFreelancerBot();
+
+                case 3 -> buyAutomatedTool();
+
+                case 0 -> {
+                    return;
+                }
+
+                default -> ui.showMessage("Invalid menu option.");
+            }
+        }
+    }
+
     private void hireIntern() {
 
         if (!company.canAfford(INTERN_HIRE_COST)) {
@@ -186,7 +223,7 @@ public class GameEngine {
         }
 
         company.spendBudget(INTERN_HIRE_COST);
-        Intern intern = new Intern("Intern " + turn, 2, 1000);
+        Intern intern = new Intern(company.nextInternName(), 2, 1000);
         company.hire(intern);
         addWorkerToActiveProjects(intern);
 
@@ -201,7 +238,8 @@ public class GameEngine {
         }
 
         company.spendBudget(FREELANCER_BOT_COST);
-        FreelancerBot bot = new FreelancerBot("Bot " + turn, 5);
+        FreelancerBot bot = new FreelancerBot(company.nextFreelancerBotName(), 5);
+        company.addFreelancerBot(bot);
         addWorkerToActiveProjects(bot);
 
         ui.showMessage("FreelancerBot added to projects.");
@@ -215,7 +253,8 @@ public class GameEngine {
         }
 
         company.spendBudget(AUTOMATED_TOOL_COST);
-        AutomatedTool tool = new AutomatedTool("Tool " + turn, 3);
+        AutomatedTool tool = new AutomatedTool(company.nextAutomatedToolName(), 3);
+        company.addAutomatedTool(tool);
         addWorkerToActiveProjects(tool);
 
         ui.showMessage("AutomatedTool added to projects.");
@@ -249,8 +288,12 @@ public class GameEngine {
             return false;
         }
 
+        if (!company.getAvailableProjects().isEmpty()) {
+            return false;
+        }
+
         for (Project project : company.getProjects()) {
-            
+
             if (!project.isFinished()) {
                 return false;
             }
