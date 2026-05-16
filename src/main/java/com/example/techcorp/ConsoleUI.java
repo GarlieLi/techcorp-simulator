@@ -264,6 +264,17 @@ public class ConsoleUI {
 
         System.out.println();
         System.out.println("Employees: " + company.getEmployees().size());
+
+        for (Employee employee : company.getEmployees()) {
+            System.out.println(
+                    "- " + employee.getName()
+                    + " | role: " + employee.getRoleName()
+                    + " | skill: " + employee.getSkill()
+                    + " | productivity: " + employee.work()
+                    + " | salary: " + formatAmount(employee.getSalary())
+            );
+        }
+        
         System.out.println("FreelancerBots: " + company.getFreelancerBots().size());
         System.out.println("AutomatedTools: " + company.getAutomatedTools().size());
         System.out.println();

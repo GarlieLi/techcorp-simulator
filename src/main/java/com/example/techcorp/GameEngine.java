@@ -200,11 +200,20 @@ public class GameEngine {
 
             switch (choice) {
 
-                case 1 -> hireIntern();
+                case 1 -> {
+                    hireIntern();
+                    return;
+                }
 
-                case 2 -> hireFreelancerBot();
+                case 2 -> {
+                    hireFreelancerBot();
+                    return;
+                }
 
-                case 3 -> buyAutomatedTool();
+                case 3 -> {
+                    buyAutomatedTool();
+                    return;
+                }
 
                 case 0 -> {
                     return;
