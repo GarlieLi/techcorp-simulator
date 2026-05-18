@@ -18,11 +18,10 @@ public class ConsoleUI {
         System.out.println("Choose an action:");
         System.out.println("1. Show company status");
         System.out.println("2. Accept project");
-        System.out.println("3. Work on active project");
-        System.out.println("4. Put project on hold");
-        System.out.println("5. Resume project");
-        System.out.println("6. Cancel project");
-        System.out.println("7. Expand team");
+        System.out.println("3. Put project on hold");
+        System.out.println("4. Resume project");
+        System.out.println("5. Cancel project");
+        System.out.println("6. Expand team");
         System.out.println("0. Exit game");
     }
 
@@ -334,5 +333,21 @@ public class ConsoleUI {
         }
 
         System.out.println(message);
+    }
+
+    public void showAiSummary(Company aiCompany) {
+        
+        if (aiCompany == null) {
+            throw new IllegalArgumentException("Company cannot be null.");
+        }
+        
+        System.out.println();
+        System.out.println("=== AI COMPANY ===");
+        System.out.println("Cash: " + formatAmount(aiCompany.getCash()));
+        System.out.println("Projects: " + aiCompany.getProjects().size());
+        System.out.println(
+            "Finished: "
+            + aiCompany.countProjectsByStatus(ProjectStatus.FINISHED)
+        );
     }
 }
