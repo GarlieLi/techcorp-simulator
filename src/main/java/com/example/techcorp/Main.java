@@ -8,9 +8,9 @@ public class Main {
 
             Company company = new Company("TechCorp", 50_000);
 
-            company.hire(new Developer("Anna", 9, 7_000));
-            company.hire(new Tester("Piotr", 6, 5_000));
-            company.hire(new Manager("Ewa", 7, 6_500));
+            company.hire(new Developer("Anna", 9, 6_000));
+            company.hire(new Tester("Piotr", 6, 4_000));
+            company.hire(new Manager("Ewa", 7, 5_000));
 
             assert !company.getEmployees().isEmpty() :
                 "Company should have employees.";

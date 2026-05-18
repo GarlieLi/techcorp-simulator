@@ -2,9 +2,11 @@ package com.example.techcorp;
 
 public class GameEngine {
 
-    private static final double INTERN_HIRE_COST = 2000;
-    private static final double FREELANCER_BOT_COST = 4000;
-    private static final double AUTOMATED_TOOL_COST = 3000;
+    private static final double INTERN_HIRE_COST = 1000;
+    private static final double FREELANCER_BOT_COST = 8000;
+    private static final double AUTOMATED_TOOL_COST = 5000;
+    private static final double AI_MIN_CASH_TO_ACCEPT = 30000;
+    private static final int AI_MAX_ACTIVE_PROJECTS = 1;
 
     private Company company;
     private Company aiCompany;
@@ -59,8 +61,12 @@ public class GameEngine {
                 if (!resolveTurnEnd()) {
                     continue;
                 }
+
                 ui.showAiSummary(aiCompany);
                 advanceTurn();
+                if (!running) {
+                    continue;
+                }
                 turn++;
             }
         }
@@ -102,24 +108,44 @@ public class GameEngine {
 
         progressAllProjects(company);
         progressAllProjects(aiCompany);
-
+        
         try {
+            
             company.paySalaries();
             company.collectProjectRewards();
         } catch (IllegalStateException e) {
-            ui.showMessage("Company cannot afford salaries.");
-            ui.showMessage("Bankruptcy! Game over.");
+            ui.showMessage(
+                "Player cannot afford salaries. Bankruptcy!"
+            );
+            
             running = false;
+            ui.showGameOver(
+                "AI WINS",
+                company,
+                aiCompany
+            );
             return false;
         }
-
+        
         try {
+            
             aiCompany.paySalaries();
             aiCompany.collectProjectRewards();
         } catch (IllegalStateException e) {
-            return true;
+            
+            ui.showMessage(
+                "AI company went bankrupt!"
+            );
+            
+            running = false;
+            
+            ui.showGameOver(
+                "PLAYER WINS",
+                company,
+                aiCompany
+            );
+            return false;
         }
-
         return true;
     }
 
@@ -254,7 +280,7 @@ public class GameEngine {
         company.spendBudget(INTERN_HIRE_COST);
         Intern intern = new Intern(company.nextInternName(), 2, 1000);
         company.hire(intern);
-        addWorkerToActiveProjects(intern);
+        addWorkerToCompanyProjects(company, intern);
 
         ui.showMessage("Intern hired successfully.");
         return true;
@@ -270,7 +296,7 @@ public class GameEngine {
         company.spendBudget(FREELANCER_BOT_COST);
         FreelancerBot bot = new FreelancerBot(company.nextFreelancerBotName(), 5);
         company.addFreelancerBot(bot);
-        addWorkerToActiveProjects(bot);
+        addWorkerToCompanyProjects(company, bot);
 
         ui.showMessage("FreelancerBot added to projects.");
         return true;
@@ -284,17 +310,17 @@ public class GameEngine {
         }
 
         company.spendBudget(AUTOMATED_TOOL_COST);
-        AutomatedTool tool = new AutomatedTool(company.nextAutomatedToolName(), 3);
+        AutomatedTool tool = new AutomatedTool(company.nextAutomatedToolName(), 2);
         company.addAutomatedTool(tool);
-        addWorkerToActiveProjects(tool);
+        addWorkerToCompanyProjects(company, tool);
 
         ui.showMessage("AutomatedTool added to projects.");
         return true;
     }
 
-    private void addWorkerToActiveProjects(Workable worker) {
+    private void addWorkerToCompanyProjects(Company targetCompany, Workable worker) {
 
-        for (Project project : company.getProjects()) {
+        for (Project project : targetCompany.getProjects()) {
 
             if (project.getStatus() != ProjectStatus.CANCELLED
                     && project.getStatus() != ProjectStatus.FINISHED) {
@@ -361,11 +387,64 @@ public class GameEngine {
 
     private void processAiTurn() {
 
-        if (!hasActiveProject(aiCompany)
+        tryExpandAiTeam();
+
+        if (aiCompany.getCash() > AI_MIN_CASH_TO_ACCEPT
+                && countActiveProjects(aiCompany) < AI_MAX_ACTIVE_PROJECTS
                 && !aiCompany.getAvailableProjects().isEmpty()) {
             Project project = aiCompany.getAvailableProjects().get(0);
             aiCompany.acceptProject(project);
         }
+    }
+
+    private void tryExpandAiTeam() {
+
+        if (aiCompany.getAutomatedTools().isEmpty()
+                && aiCompany.getCash() > 45000
+                && aiCompany.canAfford(AUTOMATED_TOOL_COST)) {
+            aiCompany.spendBudget(AUTOMATED_TOOL_COST);
+            AutomatedTool tool = new AutomatedTool(
+                    aiCompany.nextAutomatedToolName(), 2);
+            aiCompany.addAutomatedTool(tool);
+            addWorkerToCompanyProjects(aiCompany, tool);
+            return;
+        }
+
+        if (aiCompany.getFreelancerBots().isEmpty()
+                && aiCompany.getCash() > 60000
+                && aiCompany.canAfford(FREELANCER_BOT_COST)) {
+            aiCompany.spendBudget(FREELANCER_BOT_COST);
+            FreelancerBot bot = new FreelancerBot(
+                    aiCompany.nextFreelancerBotName(), 5);
+            aiCompany.addFreelancerBot(bot);
+            addWorkerToCompanyProjects(aiCompany, bot);
+            return;
+        }
+
+        if (aiCompany.getEmployees().size() < 4
+                && aiCompany.getCash() > 35000
+                && aiCompany.canAfford(INTERN_HIRE_COST)) {
+            aiCompany.spendBudget(INTERN_HIRE_COST);
+            Intern intern = new Intern(aiCompany.nextInternName(), 2, 1000);
+            aiCompany.hire(intern);
+            addWorkerToCompanyProjects(aiCompany, intern);
+        }
+    }
+
+    private int countActiveProjects(Company targetCompany) {
+
+        int count = 0;
+
+        for (Project project : targetCompany.getProjects()) {
+
+            if (project.getStatus() == ProjectStatus.PLANNED
+                    || project.getStatus() == ProjectStatus.IN_PROGRESS
+                    || project.getStatus() == ProjectStatus.ON_HOLD) {
+                count++;
+            }
+        }
+
+        return count;
     }
     
     private boolean hasActiveProject(Company company) {
@@ -383,26 +462,35 @@ public class GameEngine {
 
     private void advanceTurn() {
 
-        if (allProjectsFinished()) {
-            
-            ui.showMessage("All projects are finished. Game over."
-            );
+        boolean playerDone = hasCompletedAllProjects(company);
+        boolean aiDone = hasCompletedAllProjects(aiCompany);
 
-            running = false;
+        if (!playerDone && !aiDone) {
+            return;
+        }
+
+        running = false;
+
+        if (playerDone && aiDone) {
+            ui.showGameOver("DRAW", company, aiCompany);
+        } else if (playerDone) {
+            ui.showGameOver("PLAYER WINS", company, aiCompany);
+        } else {
+            ui.showGameOver("AI WINS", company, aiCompany);
         }
     }
 
-    private boolean allProjectsFinished() {
+    private boolean hasCompletedAllProjects(Company targetCompany) {
 
-        if (company.getProjects().isEmpty()) {
+        if (targetCompany.getProjects().isEmpty()) {
             return false;
         }
 
-        if (!company.getAvailableProjects().isEmpty()) {
+        if (!targetCompany.getAvailableProjects().isEmpty()) {
             return false;
         }
 
-        for (Project project : company.getProjects()) {
+        for (Project project : targetCompany.getProjects()) {
 
             if (!project.isFinished()) {
                 return false;

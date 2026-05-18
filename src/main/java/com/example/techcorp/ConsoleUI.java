@@ -139,17 +139,17 @@ public class ConsoleUI {
         System.out.println("=== EXPAND TEAM ===");
         System.out.println();
         System.out.println("1. Hire Intern");
-        System.out.println("   Hiring cost: 2000");
+        System.out.println("   Hiring cost: 1000");
         System.out.println("   Salary per turn: 1000");
         System.out.println("   Productivity: 1");
         System.out.println();
         System.out.println("2. Hire FreelancerBot");
-        System.out.println("   One-time cost: 4000");
+        System.out.println("   One-time cost: 8000");
         System.out.println("   Productivity: 5");
         System.out.println();
         System.out.println("3. Buy AutomatedTool");
-        System.out.println("   One-time cost: 3000");
-        System.out.println("   Productivity: 3");
+        System.out.println("   One-time cost: 5000");
+        System.out.println("   Productivity: 2");
         System.out.println();
         System.out.println("0. Back");
     }
@@ -348,6 +348,31 @@ public class ConsoleUI {
         System.out.println(
             "Finished: "
             + aiCompany.countProjectsByStatus(ProjectStatus.FINISHED)
+        );
+    }
+
+    public void showGameOver(String outcome, Company player, Company ai) {
+
+        if (outcome == null || outcome.isBlank()) {
+            throw new IllegalArgumentException("Outcome cannot be null or blank.");
+        }
+
+        if (player == null || ai == null) {
+            throw new IllegalArgumentException("Companies cannot be null.");
+        }
+
+        System.out.println();
+        System.out.println("=== " + outcome + " ===");
+        System.out.println();
+        System.out.println("Player cash: " + formatAmount(player.getCash()));
+        System.out.println(
+                "Player finished projects: "
+                + player.countProjectsByStatus(ProjectStatus.FINISHED)
+        );
+        System.out.println("AI cash: " + formatAmount(ai.getCash()));
+        System.out.println(
+                "AI finished projects: "
+                + ai.countProjectsByStatus(ProjectStatus.FINISHED)
         );
     }
 }
