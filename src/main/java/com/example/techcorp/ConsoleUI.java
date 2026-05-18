@@ -22,6 +22,7 @@ public class ConsoleUI {
         System.out.println("4. Resume project");
         System.out.println("5. Cancel project");
         System.out.println("6. Expand team");
+        System.out.println("7. End turn");
         System.out.println("0. Exit game");
     }
 
@@ -96,22 +97,27 @@ public class ConsoleUI {
             );
         }
 
+        System.out.println("0. Back");
         System.out.print("Enter project number: ");
-
+        
         if (!scanner.hasNextInt()) {
             scanner.nextLine();
             System.out.println("Invalid project selection.");
             return -1;
         }
-
+        
         int choice = scanner.nextInt();
         scanner.nextLine();
-
+        
+        if (choice == 0) {
+            return -1;
+        }
+        
         if (choice < 1 || choice > matchingIndices.size()) {
             System.out.println("Invalid project selection.");
             return -1;
         }
-
+        
         return matchingIndices.get(choice - 1);
     }
 
@@ -196,7 +202,9 @@ public class ConsoleUI {
             System.out.println(
                 "- "
                 + project.getName()
-                + " "
+                + " ("
+                + project.getStatus()
+                + ") "
                 + project.getProgress()
                 + "/"
                 + project.getRequiredWork()
@@ -235,22 +243,27 @@ public class ConsoleUI {
             System.out.println();
         }
 
+        System.out.println("0. Back");
         System.out.print("Enter project number: ");
-
+        
         if (!scanner.hasNextInt()) {
             scanner.nextLine();
             System.out.println("Invalid project selection.");
             return -1;
         }
-
+        
         int choice = scanner.nextInt();
         scanner.nextLine();
-
+        
+        if (choice == 0) {
+            return -1;
+        }
+        
         if (choice < 1 || choice > company.getAvailableProjects().size()) {
             System.out.println("Invalid project selection.");
             return -1;
         }
-
+        
         return choice - 1;
     }
 

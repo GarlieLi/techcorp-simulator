@@ -6,7 +6,6 @@ public class GameEngine {
     private static final double FREELANCER_BOT_COST = 8000;
     private static final double AUTOMATED_TOOL_COST = 5000;
     private static final double AI_MIN_CASH_TO_ACCEPT = 30000;
-    private static final int AI_MAX_ACTIVE_PROJECTS = 1;
 
     private Company company;
     private Company aiCompany;
@@ -90,6 +89,11 @@ public class GameEngine {
             case 5 -> cancelProjects();
 
             case 6 -> expandTeam();
+
+            case 7 -> {
+                ui.showMessage("Ending turn.");
+                 yield true;
+                }
 
             case 0 -> {
                 running = false;
@@ -405,17 +409,33 @@ public class GameEngine {
         }
         throw new IllegalStateException("Unknown employee type.");
     }
-
+    
     private void processAiTurn() {
-
-        tryExpandAiTeam();
-
-        if (aiCompany.getCash() > AI_MIN_CASH_TO_ACCEPT
-                && countActiveProjects(aiCompany) < AI_MAX_ACTIVE_PROJECTS
+        
+        int activeProjects = countActiveProjects(aiCompany);
+        
+        if (activeProjects == 0
+                && aiCompany.getCash() > AI_MIN_CASH_TO_ACCEPT
                 && !aiCompany.getAvailableProjects().isEmpty()) {
-            Project project = aiCompany.getAvailableProjects().get(0);
+        
+            Project project =
+                aiCompany.getAvailableProjects().get(0);
+            
             aiCompany.acceptProject(project);
+            
+            ui.showMessage(
+                "AI accepted: " + project.getName()
+            );
+            
+            return;
         }
+        
+        if (aiCompany.getCash() > 80000) {
+            tryExpandAiTeam();
+            return;
+        }
+        
+        ui.showMessage("AI ends turn.");
     }
 
     private void tryExpandAiTeam() {
