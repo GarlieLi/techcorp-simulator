@@ -150,15 +150,36 @@ public class GameEngine {
     }
 
     private void progressAllProjects(Company targetCompany) {
-
+        
+        int activeProjects = 0;
+        
         for (Project project : targetCompany.getProjects()) {
-
+            if (project.getStatus() == ProjectStatus.PLANNED
+                || project.getStatus() == ProjectStatus.IN_PROGRESS) {
+                activeProjects++;
+            }
+        }
+        
+        if (activeProjects == 0) {
+            return;
+        }
+        
+        int productivityPerProject =
+            targetCompany.calculateTotalProductivity()
+            / activeProjects;
+            
+        if (productivityPerProject < 1) {
+            productivityPerProject = 1;
+        }
+        
+        for (Project project : targetCompany.getProjects()) {
+            
             if (project.getStatus() == ProjectStatus.PLANNED) {
                 project.start();
             }
-
+            
             if (project.getStatus() == ProjectStatus.IN_PROGRESS) {
-                project.workOneTurn();
+                project.workOneTurn(productivityPerProject);
             }
         }
     }

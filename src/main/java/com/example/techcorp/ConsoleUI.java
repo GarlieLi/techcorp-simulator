@@ -155,52 +155,59 @@ public class ConsoleUI {
     }
 
     public void showTurnSummary(Company company) {
-
+        
         if (company == null) {
-            throw new IllegalArgumentException("Company cannot be null.");
+            throw new IllegalArgumentException(
+                "Company cannot be null."
+            );
         }
-
-        System.out.println("Company: " + company.getName());
-        System.out.println("Cash: " + formatAmount(company.getCash()));
+        
         System.out.println(
-                "Employees: "
-                + company.getEmployees().size()
-                + " (Total salaries: "
-                + formatAmount(company.calculateTotalSalaries())
-                + ")"
+            "Cash: "
+            + formatAmount(company.getCash())
         );
-
-        System.out.println("Active projects:");
-
-        if (company.getProjects().isEmpty()) {
-
-            System.out.println("None");
-
-        } else {
-
-            boolean hasActiveProject = false;
-
-            for (Project project : company.getProjects()) {
-
-                if (project.getStatus() == ProjectStatus.FINISHED
-                        || project.getStatus() == ProjectStatus.CANCELLED) {
-                    continue;
-                }
-
-                hasActiveProject = true;
-
-                System.out.println(
-                        "- " + project.getName()
-                        + " (" + project.getStatus() + ") "
-                        + project.getProgress()
-                        + "/" + project.getRequiredWork()
-                );
+        
+        System.out.println(
+            "Employees: "
+            + company.getEmployees().size()
+            + " (Salary: "
+            + formatAmount(company.calculateTotalSalaries())
+            + "/turn)"
+        );
+        
+        System.out.println(
+            "Productivity: "
+            + company.calculateTotalProductivity()
+        );
+        
+        System.out.println();
+        System.out.println("Projects:");
+        
+        boolean hasActiveProjects = false;
+        
+        for (Project project : company.getProjects()) {
+            
+            if (project.getStatus() == ProjectStatus.FINISHED
+                || project.getStatus() == ProjectStatus.CANCELLED) {
+                continue;
             }
-
-            if (!hasActiveProject) {
-                System.out.println("None");
-            }
+            hasActiveProjects = true;
+            
+            System.out.println(
+                "- "
+                + project.getName()
+                + " "
+                + project.getProgress()
+                + "/"
+                + project.getRequiredWork()
+            );
         }
+        
+        if (!hasActiveProjects) {
+            System.out.println("None");
+        }
+        
+        System.out.println();
     }
 
     public int chooseAvailableProject(Company company) {

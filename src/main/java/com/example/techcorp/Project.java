@@ -165,6 +165,45 @@ public class Project {
             );
         }
     }
+
+    public void workOneTurn(int productivity) {
+        
+        if (status != ProjectStatus.IN_PROGRESS) {
+            return;
+        }
+        
+        int oldProgress = progress;
+        progress += productivity;
+        
+        if (progress > requiredWork) {
+            progress = requiredWork;
+        }
+        
+        assert progress >= oldProgress :
+        "Project progress should not decrease.";
+        
+        assert progress <= requiredWork :
+        "Project progress exceeded required work.";
+        
+        System.out.println(
+            "[" + name + "] +"
+            + productivity
+            + " progress → "
+            + progress
+            + "/"
+            + requiredWork
+        );
+        
+        if (progress >= requiredWork) {
+            status = ProjectStatus.FINISHED;
+            assert status == ProjectStatus.FINISHED;
+            
+            System.out.println(
+                "[" + name + "] Status changed: "
+                + "IN_PROGRESS → FINISHED"
+            );
+        }
+    }
     
     public boolean isFinished() {
         return status == ProjectStatus.FINISHED;

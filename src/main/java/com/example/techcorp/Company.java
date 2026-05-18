@@ -190,6 +190,24 @@ public class Company {
         startProject(project);
     }
 
+    public int calculateTotalProductivity() {
+        int total = 0;
+        
+        for (Employee employee : employees) {
+            total += employee.work();
+        }
+        
+        for (FreelancerBot bot : freelancerBots) {
+            total += bot.work();
+        }
+        
+        for (AutomatedTool tool : automatedTools) {
+            total += tool.work();
+        }
+        
+        return total;
+    }
+
     public double calculateTotalSalaries() {
 
         double total = 0;
