@@ -6,7 +6,7 @@ import java.util.List;
 public class GameEngine {
 
     private static final double INTERN_HIRE_COST = 1000;
-    private static final double FREELANCER_BOT_COST = 8000;
+    private static final double FREELANCER_BOT_COST = 12000;
     private static final double AUTOMATED_TOOL_COST = 5000;
     private static final double AI_MIN_CASH_TO_ACCEPT = 30000;
 
@@ -411,7 +411,7 @@ public class GameEngine {
         }
 
         company.spendBudget(FREELANCER_BOT_COST);
-        FreelancerBot bot = new FreelancerBot(company.nextFreelancerBotName(), 5);
+        FreelancerBot bot = new FreelancerBot(company.nextFreelancerBotName(), 4);
         company.addFreelancerBot(bot);
         addWorkerToCompanyProjects(company, bot);
 
@@ -505,7 +505,12 @@ public class GameEngine {
         
         int actions = 0;
         
-        while (actions < 6) {
+        while (actions < 3) {
+
+            if (aiCompany.getCash()
+                    < aiCompany.calculateTotalSalaries() * 2) {
+                break;
+            }
             
             boolean actionTaken = false;
             
@@ -570,19 +575,39 @@ public class GameEngine {
     }
 
     private Project chooseBestProject(Company targetCompany) {
+        
         Project bestProject = null;
         double bestValue = 0;
         
+        int productivity =
+            targetCompany.calculateTotalProductivity();
+            
         for (Project project : targetCompany.getAvailableProjects()) {
+
+            if (turn <= 2 && project.getRequiredWork() > 60) {
+                continue;
+            }
+            
+            if (project.getRequiredWork() > productivity * 3) {
+                continue;
+            }
             
             double value =
                 (double) project.getReward()
                 / project.getRequiredWork();
                 
             if (value > bestValue) {
+                
                 bestValue = value;
                 bestProject = project;
             }
+        }
+        
+        if (bestProject == null
+            && !targetCompany.getAvailableProjects().isEmpty()) {
+            
+            bestProject =
+            targetCompany.getAvailableProjects().get(0);
         }
         return bestProject;
     }
@@ -591,7 +616,8 @@ public class GameEngine {
 
         if (aiCompany.getAutomatedTools().size() < 3
                 && aiCompany.getCash() > 45000
-                && aiCompany.canAfford(AUTOMATED_TOOL_COST)) {
+                && aiCompany.canAfford(AUTOMATED_TOOL_COST)
+                && aiCompany.getCash() - AUTOMATED_TOOL_COST >= 30000) {
 
             aiCompany.spendBudget(AUTOMATED_TOOL_COST);
 
@@ -609,7 +635,8 @@ public class GameEngine {
 
         if (aiCompany.getFreelancerBots().size() < 2
                 && aiCompany.getCash() > 60000
-                && aiCompany.canAfford(FREELANCER_BOT_COST)) {
+                && aiCompany.canAfford(FREELANCER_BOT_COST)
+                && aiCompany.getCash() - AUTOMATED_TOOL_COST >= 30000) {
 
             aiCompany.spendBudget(FREELANCER_BOT_COST);
 
@@ -626,7 +653,7 @@ public class GameEngine {
         }
 
         if (aiCompany.getEmployees().size() < 5
-                && aiCompany.getCash() < 50000
+                && aiCompany.getCash() > 40000
                 && aiCompany.canAfford(INTERN_HIRE_COST)) {
                     
             aiCompany.spendBudget(INTERN_HIRE_COST);

@@ -149,8 +149,8 @@ public class ConsoleUI {
         System.out.println("   Productivity: 1");
         System.out.println();
         System.out.println("2. Hire FreelancerBot");
-        System.out.println("   One-time cost: 8000");
-        System.out.println("   Productivity: 5");
+        System.out.println("   One-time cost: 12000");
+        System.out.println("   Productivity: 4");
         System.out.println();
         System.out.println("3. Buy AutomatedTool");
         System.out.println("   One-time cost: 5000");
@@ -287,7 +287,6 @@ public class ConsoleUI {
             System.out.println(
                     "- " + employee.getName()
                     + " | role: " + employee.getRoleName()
-                    + " | skill: " + employee.getSkill()
                     + " | productivity: " + employee.work()
                     + " | salary: " + formatAmount(employee.getSalary())
             );

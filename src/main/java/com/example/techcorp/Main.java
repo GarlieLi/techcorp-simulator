@@ -8,19 +8,21 @@ public class Main {
 
             Company company = new Company("TechCorp", 50_000);
 
-            company.hire(new Developer("Anna", 9, 6_000));
+            company.hire(new Developer("Anna", 7, 6_000));
             company.hire(new Tester("Piotr", 6, 4_000));
-            company.hire(new Manager("Ewa", 7, 5_000));
+            company.hire(new Manager("Ewa", 8, 5_000));
 
             assert !company.getEmployees().isEmpty() :
                 "Company should have employees.";
-
-            company.addAvailableProject(new Project("Website", 20, 30_000));
-            company.addAvailableProject(new Project("AI Chatbot", 60, 90_000));
-            company.addAvailableProject(new Project("Legacy Migration", 90, 120_000));
+            
+            company.addAvailableProject(new Project("Bug Fix Sprint", 15, 18_000));
+            company.addAvailableProject(new Project("Website", 20, 28_000));
             company.addAvailableProject(new Project("Mobile App", 30, 45_000));
+            company.addAvailableProject(new Project("AI Chatbot", 60, 90_000));
+            company.addAvailableProject(new Project("Cybersecurity Audit", 75, 110_000));
+            company.addAvailableProject(new Project("Cloud Infrastructure", 110, 150_000));
 
-            assert company.getAvailableProjects().size() == 4 :
+            assert company.getAvailableProjects().size() == 6 :
                 "Available projects were not added correctly.";
                 
             ConsoleUI ui = new ConsoleUI();

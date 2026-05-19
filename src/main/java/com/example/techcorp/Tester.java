@@ -9,7 +9,7 @@ public class Tester extends Employee implements Workable, Payable{
     @Override
     public int work() {
 
-        int productivity = Math.max(1, getSkill() / 2);
+        int productivity = getSkill();
 
         assert productivity > 0 :
                 "Tester productivity should be positive.";

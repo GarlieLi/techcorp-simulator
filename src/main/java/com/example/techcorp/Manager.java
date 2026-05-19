@@ -9,7 +9,7 @@ public class Manager extends Employee implements Workable, Payable {
     @Override
     public int work() {
 
-        int productivity = Math.max(1, getSkill() / 3);
+        int productivity = getSkill() - 3;
 
         assert productivity > 0 :
             "Manager productivity should be positive.";

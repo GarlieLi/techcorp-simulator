@@ -8,7 +8,7 @@ public class Developer extends Employee implements Workable, Payable{
 
     @Override
     public int work() {
-        int productivity = getSkill() * 2;
+        int productivity = getSkill() + 3;
 
         assert productivity > 0 :
             "Developer productivity should be positive.";
