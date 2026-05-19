@@ -20,9 +20,8 @@ public class ConsoleUI {
         System.out.println("2. Accept project");
         System.out.println("3. Put project on hold");
         System.out.println("4. Resume project");
-        System.out.println("5. Cancel project");
-        System.out.println("6. Expand team");
-        System.out.println("7. End turn");
+        System.out.println("5. Expand team");
+        System.out.println("6. End turn");
         System.out.println("0. Exit game");
     }
 
@@ -302,7 +301,6 @@ public class ConsoleUI {
         System.out.println("- In Progress: " + company.countProjectsByStatus(ProjectStatus.IN_PROGRESS));
         System.out.println("- On Hold: " + company.countProjectsByStatus(ProjectStatus.ON_HOLD));
         System.out.println("- Finished: " + company.countProjectsByStatus(ProjectStatus.FINISHED));
-        System.out.println("- Cancelled: " + company.countProjectsByStatus(ProjectStatus.CANCELLED));
         System.out.println();
         System.out.println("Current Active Projects:");
 
@@ -316,8 +314,7 @@ public class ConsoleUI {
 
             for (Project project : company.getProjects()) {
 
-                if (project.getStatus() == ProjectStatus.FINISHED
-                        || project.getStatus() == ProjectStatus.CANCELLED) {
+                if (project.getStatus() == ProjectStatus.FINISHED) {
                     continue;
                 }
 

@@ -86,11 +86,9 @@ public class GameEngine {
 
             case 4 -> resumeProjects();
 
-            case 5 -> cancelProjects();
+            case 5 -> expandTeam();
 
-            case 6 -> expandTeam();
-
-            case 7 -> {
+            case 6 -> {
                 ui.showMessage("Ending turn.");
                  yield true;
                 }
@@ -357,26 +355,6 @@ public class GameEngine {
         return true;
     }
 
-    private boolean cancelProjects() {
-
-        int index = ui.chooseProject(
-                company,
-                "No projects available to cancel.",
-                ProjectStatus.PLANNED,
-                ProjectStatus.IN_PROGRESS,
-                ProjectStatus.ON_HOLD
-        );
-
-        if (index < 0) {
-            return false;
-        }
-
-        Project project = company.getProjects().get(index);
-        project.cancel();
-        ui.showMessage(project.getName() + " cancelled.");
-        return true;
-    }
-
     private boolean expandTeam() {
 
         while (true) {
@@ -465,8 +443,7 @@ public class GameEngine {
 
         for (Project project : targetCompany.getProjects()) {
 
-            if (project.getStatus() != ProjectStatus.CANCELLED
-                    && project.getStatus() != ProjectStatus.FINISHED) {
+            if (project.getStatus() != ProjectStatus.FINISHED) {
                 project.addWorker(worker);
             }
         }
