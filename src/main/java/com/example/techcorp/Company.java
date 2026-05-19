@@ -243,13 +243,6 @@ public class Company {
 
         assert budget >= 0 :
             "Budget should never become negative.";
-
-        System.out.println(
-            "Salaries paid: "
-            + total
-            + " | Remaining cash: "
-            + budget
-        );
     }
     
     public void collectProjectRewards() {
@@ -257,17 +250,10 @@ public class Company {
         for (Project project : projects) {
             
             if (project.isFinished()
-                && !project.isRewardPaid()) {
-
-            budget += project.getReward();
-
-            project.markRewardPaid();
-
-            System.out.println(
-                "Reward received from "
-                + project.getName()
-                + ": "
-                + project.getReward());
+                    && !project.isRewardPaid()) {
+                
+                budget += project.getReward();
+                project.markRewardPaid();
             }
         }
     }

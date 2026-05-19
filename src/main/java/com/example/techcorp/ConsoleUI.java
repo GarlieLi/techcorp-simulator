@@ -98,7 +98,6 @@ public class ConsoleUI {
         }
 
         System.out.println("0. Back");
-        System.out.print("Enter project number: ");
         
         if (!scanner.hasNextInt()) {
             scanner.nextLine();
@@ -108,6 +107,7 @@ public class ConsoleUI {
         
         int choice = scanner.nextInt();
         scanner.nextLine();
+        System.out.println();
         
         if (choice == 0) {
             return -1;
@@ -244,7 +244,6 @@ public class ConsoleUI {
         }
 
         System.out.println("0. Back");
-        System.out.print("Enter project number: ");
         
         if (!scanner.hasNextInt()) {
             scanner.nextLine();
@@ -254,6 +253,7 @@ public class ConsoleUI {
         
         int choice = scanner.nextInt();
         scanner.nextLine();
+        System.out.println();
         
         if (choice == 0) {
             return -1;
@@ -335,6 +335,35 @@ public class ConsoleUI {
                 System.out.println("None");
             }
         }
+    }
+
+    public void showTurnResults(
+            String label,
+            double salaryPaid,
+            double rewardsEarned,
+            double remainingCash) {
+            
+        System.out.println(label);
+        
+        if (rewardsEarned > 0) {
+            
+            System.out.println(
+                "+" + formatAmount(rewardsEarned)
+                + " reward"
+            );
+        }
+        
+        System.out.println(
+            "-" + formatAmount(salaryPaid)
+            + " salaries"
+        );
+        
+        System.out.println(
+            "Cash: "
+            + formatAmount(remainingCash)
+        );
+        
+        System.out.println();
     }
 
     private String formatAmount(double amount) {

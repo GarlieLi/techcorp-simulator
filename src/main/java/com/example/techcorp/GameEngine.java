@@ -1,5 +1,8 @@
 package com.example.techcorp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameEngine {
 
     private static final double INTERN_HIRE_COST = 1000;
@@ -56,17 +59,12 @@ public class GameEngine {
             boolean turnAction = handleChoice(choice);
 
             if (running && turnAction) {
+                
                 processAiTurn();
+
                 if (!resolveTurnEnd()) {
                     continue;
                 }
-
-                ui.showAiSummary(aiCompany);
-                advanceTurn();
-                if (!running) {
-                    continue;
-                }
-                turn++;
             }
         }
     }
@@ -109,72 +107,100 @@ public class GameEngine {
     }
 
     private boolean resolveTurnEnd() {
-
+        
         progressAllProjects(company);
         progressAllProjects(aiCompany);
         
+        double playerSalary =
+            company.calculateTotalSalaries();
+            
+        double playerCashBefore =
+            company.getCash();
+            
         try {
             
             company.paySalaries();
             company.collectProjectRewards();
-        } catch (IllegalStateException e) {
-            ui.showMessage(
-                "Player cannot afford salaries. Bankruptcy!"
-            );
-            
-            running = false;
-            ui.showGameOver(
-                "AI WINS",
-                company,
-                aiCompany
-            );
-            return false;
-        }
         
-        try {
-            
-            aiCompany.paySalaries();
-            aiCompany.collectProjectRewards();
         } catch (IllegalStateException e) {
-            
-            ui.showMessage(
-                "AI company went bankrupt!"
-            );
-            
-            running = false;
-            
-            ui.showGameOver(
-                "PLAYER WINS",
-                company,
-                aiCompany
-            );
-            return false;
-        }
-        return true;
+
+        ui.showMessage(
+            "Player cannot afford salaries. Bankruptcy!"
+        );
+
+        running = false;
+
+        ui.showGameOver(
+            "AI WINS",
+            company,
+            aiCompany
+        );
+
+        return false;
     }
+
+    double playerRewards =
+            company.getCash()
+            - playerCashBefore
+            + playerSalary;
+
+    double aiSalary =
+            aiCompany.calculateTotalSalaries();
+
+    double aiCashBefore =
+            aiCompany.getCash();
+
+    try {
+
+        aiCompany.paySalaries();
+        aiCompany.collectProjectRewards();
+
+    } catch (IllegalStateException e) {
+
+        ui.showMessage(
+            "AI company went bankrupt!"
+        );
+
+        running = false;
+
+        ui.showGameOver(
+            "PLAYER WINS",
+            company,
+            aiCompany
+        );
+
+        return false;
+    }
+
+    double aiRewards =
+            aiCompany.getCash()
+            - aiCashBefore
+            + aiSalary;
+
+    System.out.println();
+    System.out.println("=== TURN RESULTS ===");
+    System.out.println();
+
+    ui.showTurnResults(
+            "PLAYER",
+            playerSalary,
+            playerRewards,
+            company.getCash()
+    );
+
+    ui.showTurnResults(
+            "AI",
+            aiSalary,
+            aiRewards,
+            aiCompany.getCash()
+    );
+
+    return true;
+}
 
     private void progressAllProjects(Company targetCompany) {
         
-        int activeProjects = 0;
-        
-        for (Project project : targetCompany.getProjects()) {
-            if (project.getStatus() == ProjectStatus.PLANNED
-                || project.getStatus() == ProjectStatus.IN_PROGRESS) {
-                activeProjects++;
-            }
-        }
-        
-        if (activeProjects == 0) {
-            return;
-        }
-        
-        int productivityPerProject =
-            targetCompany.calculateTotalProductivity()
-            / activeProjects;
-            
-        if (productivityPerProject < 1) {
-            productivityPerProject = 1;
-        }
+        List<Project> activeProjects = new ArrayList<>();
         
         for (Project project : targetCompany.getProjects()) {
             
@@ -183,8 +209,63 @@ public class GameEngine {
             }
             
             if (project.getStatus() == ProjectStatus.IN_PROGRESS) {
-                project.workOneTurn(productivityPerProject);
+                activeProjects.add(project);
             }
+        }
+        
+        if (activeProjects.isEmpty()) {
+            return;
+        }
+
+        String companyLabel =
+            targetCompany == company
+            ? "PLAYER"
+            : "AI";
+        
+        int remainingProductivity =
+            targetCompany.calculateTotalProductivity();
+            
+        List<Project> unfinishedProjects =
+            new ArrayList<>(activeProjects);
+            
+        for (Project project : activeProjects) {
+            
+            int remainingWork =
+                project.getRequiredWork()
+                - project.getProgress();
+                
+            if (remainingWork <= remainingProductivity
+                && unfinishedProjects.size() > 1) {
+
+                project.workOneTurn(
+                    remainingWork,
+                    companyLabel
+                );
+                
+                remainingProductivity -= remainingWork;
+                
+                unfinishedProjects.remove(project);
+            }
+        }
+        
+        if (unfinishedProjects.isEmpty()) {
+            return;
+        }
+        
+        int productivityPerProject =
+            remainingProductivity
+            / unfinishedProjects.size();
+            
+        if (productivityPerProject < 1) {
+            productivityPerProject = 1;
+        }
+        
+        for (Project project : unfinishedProjects) {
+
+            project.workOneTurn(
+                productivityPerProject,
+                companyLabel
+            );
         }
     }
 

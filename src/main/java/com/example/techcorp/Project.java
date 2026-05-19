@@ -67,11 +67,6 @@ public class Project {
             status = ProjectStatus.IN_PROGRESS;
 
             assert status == ProjectStatus.IN_PROGRESS;
-            
-            System.out.println(
-                "[" + name + "] Status changed: "
-                + "PLANNED → IN_PROGRESS"
-            );
         }
     }
 
@@ -82,11 +77,6 @@ public class Project {
             status = ProjectStatus.ON_HOLD;
 
             assert status == ProjectStatus.ON_HOLD;
-
-            System.out.println(
-                    "[" + name + "] Status changed: "
-                    + "IN_PROGRESS → ON_HOLD"
-            );
         }
     }
 
@@ -97,11 +87,6 @@ public class Project {
             status = ProjectStatus.IN_PROGRESS;
 
             assert status == ProjectStatus.IN_PROGRESS;
-
-            System.out.println(
-                "[" + name + "] Status changed: "
-                + "ON_HOLD → IN_PROGRESS"
-            );
         }
     }
 
@@ -112,10 +97,6 @@ public class Project {
         status = ProjectStatus.CANCELLED;
 
         assert status == ProjectStatus.CANCELLED;
-
-        System.out.println(
-                "[" + name + "] Status changed: → CANCELLED"
-            );
         }
     }
 
@@ -158,15 +139,12 @@ public class Project {
             status = ProjectStatus.FINISHED;
 
             assert status == ProjectStatus.FINISHED;
-
-            System.out.println(
-                "[" + name + "] Status changed: "
-                + "IN_PROGRESS → FINISHED"
-            );
         }
     }
 
-    public void workOneTurn(int productivity) {
+    public void workOneTurn(
+        int productivity,
+        String companyLabel) {
         
         if (status != ProjectStatus.IN_PROGRESS) {
             return;
@@ -185,23 +163,27 @@ public class Project {
         assert progress <= requiredWork :
         "Project progress exceeded required work.";
         
+        if (progress >= requiredWork) {
+            
         System.out.println(
-            "[" + name + "] +"
-            + productivity
-            + " progress → "
+            "[" + companyLabel + "] "
+            + name
+            + " completed"
+        );
+    } else {
+        
+        System.out.println(
+            "[" + companyLabel + "] "
+            + name
+            + " "
             + progress
             + "/"
             + requiredWork
         );
-        
+    }
         if (progress >= requiredWork) {
             status = ProjectStatus.FINISHED;
             assert status == ProjectStatus.FINISHED;
-            
-            System.out.println(
-                "[" + name + "] Status changed: "
-                + "IN_PROGRESS → FINISHED"
-            );
         }
     }
     
