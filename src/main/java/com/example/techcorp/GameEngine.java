@@ -500,67 +500,147 @@ public class GameEngine {
         }
         throw new IllegalStateException("Unknown employee type.");
     }
-    
+
     private void processAiTurn() {
         
-        int activeProjects = countActiveProjects(aiCompany);
+        int actions = 0;
         
-        if (activeProjects == 0
-                && aiCompany.getCash() > AI_MIN_CASH_TO_ACCEPT
+        while (actions < 6) {
+            
+            boolean actionTaken = false;
+            
+            int activeProjects =
+                countActiveProjects(aiCompany);
+                
+            int productivity =
+                aiCompany.calculateTotalProductivity();
+                
+            if (activeProjects == 0
                 && !aiCompany.getAvailableProjects().isEmpty()) {
-        
-            Project project =
-                aiCompany.getAvailableProjects().get(0);
+                
+                Project bestProject =
+                    chooseBestProject(aiCompany);
+                    
+                aiCompany.acceptProject(bestProject);
+                
+                ui.showMessage(
+                    "AI accepted: "
+                    + bestProject.getName()
+                );
+                actionTaken = true;
+            }
+
+            activeProjects = countActiveProjects(aiCompany);
+            productivity = aiCompany.calculateTotalProductivity();
             
-            aiCompany.acceptProject(project);
+            if (aiCompany.getCash() > 35000
+                && productivity < 50
+                && aiCompany.calculateTotalSalaries()
+                    < aiCompany.getCash() / 2) {
+                
+                actionTaken = tryExpandAiTeam();
+            }
+
+            activeProjects = countActiveProjects(aiCompany);
+            productivity = aiCompany.calculateTotalProductivity();
             
-            ui.showMessage(
-                "AI accepted: " + project.getName()
-            );
+            if (activeProjects
+                < Math.max(1, productivity / 12)
+                && !aiCompany.getAvailableProjects().isEmpty()
+                && aiCompany.getCash() > 30000) {
+                    
+                Project bestProject =
+                    chooseBestProject(aiCompany);
+                
+                aiCompany.acceptProject(bestProject);
+                
+                ui.showMessage(
+                    "AI accepted: "
+                    + bestProject.getName()
+                );
+                actionTaken = true;
+            }
             
-            return;
+            if (!actionTaken) {
+                break;
+            }
+            actions++;
         }
-        
-        if (aiCompany.getCash() > 80000) {
-            tryExpandAiTeam();
-            return;
-        }
-        
         ui.showMessage("AI ends turn.");
     }
 
-    private void tryExpandAiTeam() {
+    private Project chooseBestProject(Company targetCompany) {
+        Project bestProject = null;
+        double bestValue = 0;
+        
+        for (Project project : targetCompany.getAvailableProjects()) {
+            
+            double value =
+                (double) project.getReward()
+                / project.getRequiredWork();
+                
+            if (value > bestValue) {
+                bestValue = value;
+                bestProject = project;
+            }
+        }
+        return bestProject;
+    }
 
-        if (aiCompany.getAutomatedTools().isEmpty()
+    private boolean tryExpandAiTeam() {
+
+        if (aiCompany.getAutomatedTools().size() < 3
                 && aiCompany.getCash() > 45000
                 && aiCompany.canAfford(AUTOMATED_TOOL_COST)) {
+
             aiCompany.spendBudget(AUTOMATED_TOOL_COST);
+
             AutomatedTool tool = new AutomatedTool(
                     aiCompany.nextAutomatedToolName(), 2);
+
             aiCompany.addAutomatedTool(tool);
             addWorkerToCompanyProjects(aiCompany, tool);
-            return;
+
+            ui.showMessage(
+                "AI bought AutomatedTool."
+            );
+            return true;
         }
 
-        if (aiCompany.getFreelancerBots().isEmpty()
+        if (aiCompany.getFreelancerBots().size() < 2
                 && aiCompany.getCash() > 60000
                 && aiCompany.canAfford(FREELANCER_BOT_COST)) {
+
             aiCompany.spendBudget(FREELANCER_BOT_COST);
+
             FreelancerBot bot = new FreelancerBot(
                     aiCompany.nextFreelancerBotName(), 5);
+
             aiCompany.addFreelancerBot(bot);
             addWorkerToCompanyProjects(aiCompany, bot);
-            return;
+
+            ui.showMessage(
+                "AI hired FreelancerBot."
+            );
+            return true;
         }
 
-        if (aiCompany.getEmployees().size() < 4
-                && aiCompany.getCash() > 35000
+        if (aiCompany.getEmployees().size() < 5
+                && aiCompany.getCash() < 50000
                 && aiCompany.canAfford(INTERN_HIRE_COST)) {
+                    
             aiCompany.spendBudget(INTERN_HIRE_COST);
             Intern intern = new Intern(aiCompany.nextInternName(), 2, 1000);
+
             aiCompany.hire(intern);
+
+            ui.showMessage(
+                "AI hired Intern."
+            );
             addWorkerToCompanyProjects(aiCompany, intern);
+            return true;
         }
+        return false;
     }
 
     private int countActiveProjects(Company targetCompany) {
@@ -570,8 +650,7 @@ public class GameEngine {
         for (Project project : targetCompany.getProjects()) {
 
             if (project.getStatus() == ProjectStatus.PLANNED
-                    || project.getStatus() == ProjectStatus.IN_PROGRESS
-                    || project.getStatus() == ProjectStatus.ON_HOLD) {
+                    || project.getStatus() == ProjectStatus.IN_PROGRESS) {
                 count++;
             }
         }
