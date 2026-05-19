@@ -44,30 +44,29 @@ public class GameEngine {
     }
 
     public void start() {
-
+        
         while (running) {
-
-             assert turn > 0 :
-                "Turn number should always be positive.";
-
+            
             ui.showTurnHeader(turn);
-            ui.showTurnSummary(company);
-            ui.showMainMenu();
-
-            int choice = ui.readMenuChoice();
-
-            boolean turnAction = handleChoice(choice);
-
-            if (running && turnAction) {
-
-                processAiTurn();
-
-                if (!resolveTurnEnd()) {
-                    continue;
-                }
-                turn++;
+            boolean turnEnded = false;
+            
+            while (running && !turnEnded) {
+                ui.showTurnSummary(company);
+                ui.showMainMenu();
+                int choice = ui.readMenuChoice();
+                turnEnded = handleChoice(choice);
+            }
+            if (!running) {
+                break;
             }
             
+            processAiTurn();
+            
+            if (!resolveTurnEnd()) {
+                continue;
+            }
+            
+            turn++;
         }
     }
 
@@ -86,7 +85,9 @@ public class GameEngine {
 
             case 4 -> resumeProjects();
 
-            case 5 -> expandTeam();
+            case 5 -> {expandTeam();
+                yield false;
+            }
 
             case 6 -> {
                 ui.showMessage("Ending turn.");
@@ -316,7 +317,7 @@ public class GameEngine {
         company.acceptProject(project);
 
         ui.showMessage(project.getName() + " accepted and added to active projects.");
-        return true;
+        return false;
     }
 
     private boolean putProjectsOnHold() {
@@ -334,7 +335,7 @@ public class GameEngine {
         Project project = company.getProjects().get(index);
         project.putOnHold();
         ui.showMessage(project.getName() + " put on hold.");
-        return true;
+        return false;
     }
 
     private boolean resumeProjects() {
@@ -352,50 +353,45 @@ public class GameEngine {
         Project project = company.getProjects().get(index);
         project.resume();
         ui.showMessage(project.getName() + " resumed.");
-        return true;
+        return false;
     }
 
     private boolean expandTeam() {
-
+        
         while (true) {
-
             ui.showExpandTeamMenu();
             int choice = ui.readMenuChoice();
-
+            
             switch (choice) {
-
                 case 1 -> {
-                    if (hireIntern()) {
-                        return true;
-                    }
+                    hireIntern();
+                    return true;
                 }
-
+                
                 case 2 -> {
-                    if (hireFreelancerBot()) {
-                        return true;
-                    }
+                    hireFreelancerBot();
+                    return true;
                 }
-
+                
                 case 3 -> {
-                    if (buyAutomatedTool()) {
-                        return true;
-                    }
+                    buyAutomatedTool();
+                    return true;
                 }
-
+                
                 case 0 -> {
                     return false;
                 }
-
+                
                 default -> ui.showMessage("Invalid menu option.");
             }
         }
     }
 
-    private boolean hireIntern() {
+    private void hireIntern() {
 
         if (!company.canAfford(INTERN_HIRE_COST)) {
             ui.showMessage("Not enough budget to hire intern.");
-            return false;
+            return;
         }
 
         company.spendBudget(INTERN_HIRE_COST);
@@ -404,14 +400,14 @@ public class GameEngine {
         addWorkerToCompanyProjects(company, intern);
 
         ui.showMessage("Intern hired successfully.");
-        return true;
+        return;
     }
 
-    private boolean hireFreelancerBot() {
+    private void hireFreelancerBot() {
 
         if (!company.canAfford(FREELANCER_BOT_COST)) {
             ui.showMessage("Not enough budget to hire FreelancerBot.");
-            return false;
+            return;
         }
 
         company.spendBudget(FREELANCER_BOT_COST);
@@ -420,14 +416,14 @@ public class GameEngine {
         addWorkerToCompanyProjects(company, bot);
 
         ui.showMessage("FreelancerBot added to projects.");
-        return true;
+        return;
     }
 
-    private boolean buyAutomatedTool() {
+    private void buyAutomatedTool() {
 
         if (!company.canAfford(AUTOMATED_TOOL_COST)) {
             ui.showMessage("Not enough budget to buy AutomatedTool.");
-            return false;
+            return;
         }
 
         company.spendBudget(AUTOMATED_TOOL_COST);
@@ -436,7 +432,7 @@ public class GameEngine {
         addWorkerToCompanyProjects(company, tool);
 
         ui.showMessage("AutomatedTool added to projects.");
-        return true;
+        return;
     }
 
     private void addWorkerToCompanyProjects(Company targetCompany, Workable worker) {
