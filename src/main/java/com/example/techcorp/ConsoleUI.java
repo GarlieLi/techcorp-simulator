@@ -149,7 +149,7 @@ public class ConsoleUI {
         System.out.println("   Productivity: 1");
         System.out.println();
         System.out.println("2. Hire FreelancerBot");
-        System.out.println("   One-time cost: 12000");
+        System.out.println("   One-time cost: 18000");
         System.out.println("   Productivity: 4");
         System.out.println();
         System.out.println("3. Buy AutomatedTool");

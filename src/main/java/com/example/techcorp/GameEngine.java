@@ -6,7 +6,7 @@ import java.util.List;
 public class GameEngine {
 
     private static final double INTERN_HIRE_COST = 1000;
-    private static final double FREELANCER_BOT_COST = 12000;
+    private static final double FREELANCER_BOT_COST = 18000;
     private static final double AUTOMATED_TOOL_COST = 5000;
     private static final double AI_MIN_CASH_TO_ACCEPT = 30000;
 
@@ -502,6 +502,8 @@ public class GameEngine {
     }
 
     private void processAiTurn() {
+
+        List<String> aiActions = new ArrayList<>();
         
         int actions = 0;
         
@@ -528,8 +530,8 @@ public class GameEngine {
                     
                 aiCompany.acceptProject(bestProject);
                 
-                ui.showMessage(
-                    "AI accepted: "
+                aiActions.add(
+                    "Accepted project: "
                     + bestProject.getName()
                 );
                 actionTaken = true;
@@ -543,7 +545,7 @@ public class GameEngine {
                 && aiCompany.calculateTotalSalaries()
                     < aiCompany.getCash() / 2) {
                 
-                actionTaken = tryExpandAiTeam();
+                actionTaken = tryExpandAiTeam(aiActions);
             }
 
             activeProjects = countActiveProjects(aiCompany);
@@ -559,8 +561,8 @@ public class GameEngine {
                 
                 aiCompany.acceptProject(bestProject);
                 
-                ui.showMessage(
-                    "AI accepted: "
+                aiActions.add(
+                    "Accepted project: "
                     + bestProject.getName()
                 );
                 actionTaken = true;
@@ -571,7 +573,17 @@ public class GameEngine {
             }
             actions++;
         }
-        ui.showMessage("AI ends turn.");
+        System.out.println();
+        System.out.println("=== AI TURN ===");
+        
+        if (aiActions.isEmpty()) {
+            System.out.println("- No actions taken");
+        } else {
+            
+            for (String action : aiActions) {
+                System.out.println("- " + action);
+            }
+        }
     }
 
     private Project chooseBestProject(Company targetCompany) {
@@ -612,7 +624,7 @@ public class GameEngine {
         return bestProject;
     }
 
-    private boolean tryExpandAiTeam() {
+    private boolean tryExpandAiTeam(List<String> aiActions){
 
         if (aiCompany.getAutomatedTools().size() < 3
                 && aiCompany.getCash() > 45000
@@ -627,28 +639,24 @@ public class GameEngine {
             aiCompany.addAutomatedTool(tool);
             addWorkerToCompanyProjects(aiCompany, tool);
 
-            ui.showMessage(
-                "AI bought AutomatedTool."
-            );
+            aiActions.add("Bought AutomatedTool");
             return true;
         }
 
         if (aiCompany.getFreelancerBots().size() < 2
-                && aiCompany.getCash() > 60000
+                && aiCompany.getCash() > 70000
                 && aiCompany.canAfford(FREELANCER_BOT_COST)
-                && aiCompany.getCash() - AUTOMATED_TOOL_COST >= 30000) {
+                && aiCompany.getCash() - FREELANCER_BOT_COST >= 30000) {
 
             aiCompany.spendBudget(FREELANCER_BOT_COST);
 
             FreelancerBot bot = new FreelancerBot(
-                    aiCompany.nextFreelancerBotName(), 5);
+                    aiCompany.nextFreelancerBotName(), 4);
 
             aiCompany.addFreelancerBot(bot);
             addWorkerToCompanyProjects(aiCompany, bot);
 
-            ui.showMessage(
-                "AI hired FreelancerBot."
-            );
+            aiActions.add("Hired FreelancerBot");
             return true;
         }
 
@@ -661,9 +669,7 @@ public class GameEngine {
 
             aiCompany.hire(intern);
 
-            ui.showMessage(
-                "AI hired Intern."
-            );
+            aiActions.add("Hired Intern");
             addWorkerToCompanyProjects(aiCompany, intern);
             return true;
         }
