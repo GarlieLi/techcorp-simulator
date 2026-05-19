@@ -59,13 +59,15 @@ public class GameEngine {
             boolean turnAction = handleChoice(choice);
 
             if (running && turnAction) {
-                
+
                 processAiTurn();
 
                 if (!resolveTurnEnd()) {
                     continue;
                 }
+                turn++;
             }
+            
         }
     }
 
@@ -186,17 +188,17 @@ public class GameEngine {
             playerSalary,
             playerRewards,
             company.getCash()
-    );
+        );
 
     ui.showTurnResults(
             "AI",
             aiSalary,
             aiRewards,
             aiCompany.getCash()
-    );
-
-    return true;
-}
+        );
+        advanceTurn();
+        return true;
+    }
 
     private void progressAllProjects(Company targetCompany) {
         
@@ -216,17 +218,20 @@ public class GameEngine {
         if (activeProjects.isEmpty()) {
             return;
         }
-
+        
         String companyLabel =
             targetCompany == company
             ? "PLAYER"
             : "AI";
-        
+            
         int remainingProductivity =
             targetCompany.calculateTotalProductivity();
             
         List<Project> unfinishedProjects =
             new ArrayList<>(activeProjects);
+            
+        List<String> allocations =
+            new ArrayList<>();
             
         for (Project project : activeProjects) {
             
@@ -236,7 +241,13 @@ public class GameEngine {
                 
             if (remainingWork <= remainingProductivity
                 && unfinishedProjects.size() > 1) {
-
+                    
+                allocations.add(
+                    project.getName()
+                    + ": "
+                    + remainingWork
+                );
+                
                 project.workOneTurn(
                     remainingWork,
                     companyLabel
@@ -248,20 +259,46 @@ public class GameEngine {
             }
         }
         
-        if (unfinishedProjects.isEmpty()) {
-            return;
+        if (!unfinishedProjects.isEmpty()) {
+            
+            int productivityPerProject =
+                remainingProductivity
+                / unfinishedProjects.size();
+                
+            if (productivityPerProject < 1) {
+                productivityPerProject = 1;
+            }
+            
+            for (Project project : unfinishedProjects) {
+                allocations.add(
+                    project.getName()
+                    + ": "
+                    + productivityPerProject
+                );
+            }
         }
         
-        int productivityPerProject =
-            remainingProductivity
-            / unfinishedProjects.size();
-            
-        if (productivityPerProject < 1) {
-            productivityPerProject = 1;
+        System.out.println();
+        
+        System.out.println(
+            "[" + companyLabel + "] Productivity Allocation:"
+        );
+        
+        for (String allocation : allocations) {
+            System.out.println(
+                "- " + allocation
+            );
         }
         
         for (Project project : unfinishedProjects) {
-
+            int productivityPerProject =
+                remainingProductivity
+                / unfinishedProjects.size();
+            
+            if (productivityPerProject < 1) {
+                productivityPerProject = 1;
+            }
+            
             project.workOneTurn(
                 productivityPerProject,
                 companyLabel
@@ -568,19 +605,6 @@ public class GameEngine {
 
         return count;
     }
-    
-    private boolean hasActiveProject(Company company) {
-        
-        for (Project project : company.getProjects()) {
-            
-            if (project.getStatus() == ProjectStatus.PLANNED
-                || project.getStatus() == ProjectStatus.IN_PROGRESS) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
 
     private void advanceTurn() {
 
@@ -594,7 +618,27 @@ public class GameEngine {
         running = false;
 
         if (playerDone && aiDone) {
-            ui.showGameOver("DRAW", company, aiCompany);
+
+            if (company.getCash() > aiCompany.getCash()) {
+                ui.showGameOver(
+                    "PLAYER WINS",
+                    company,
+                    aiCompany
+                );
+            } else if (aiCompany.getCash() > company.getCash()) {
+                ui.showGameOver(
+                    "AI WINS",
+                    company,
+                    aiCompany
+                );
+            } else {
+                ui.showGameOver(
+                    "DRAW",
+                    company,
+                    aiCompany
+                );
+            }
+
         } else if (playerDone) {
             ui.showGameOver("PLAYER WINS", company, aiCompany);
         } else {
