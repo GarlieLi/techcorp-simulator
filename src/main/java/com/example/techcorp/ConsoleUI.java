@@ -42,6 +42,41 @@ public class ConsoleUI {
         return choice;
     }
 
+    public Difficulty chooseDifficulty() {
+        System.out.println();
+        System.out.println("=== AI DIFFICULTY ===");
+        System.out.println("1. Easy");
+        System.out.println("2. Normal");
+        System.out.println("3. Hard");
+        
+        while (true) {
+            System.out.print("Enter choice: ");
+            
+            if (!scanner.hasNextInt()) {
+                scanner.nextLine();
+                continue;
+            }
+            
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            
+            switch (choice) {
+                
+                case 1:
+                    return Difficulty.EASY;
+                    
+                case 2:
+                    return Difficulty.NORMAL;
+                    
+                case 3:
+                    return Difficulty.HARD;
+                    
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
     public int chooseProject(Company company) {
 
         return chooseProject(company, "No projects available.");

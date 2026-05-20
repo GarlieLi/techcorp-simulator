@@ -3,8 +3,10 @@ com/example/techcorp/Tester.class
 com/example/techcorp/Company.class
 com/example/techcorp/FreelancerBot.class
 com/example/techcorp/ProjectStatus.class
+com/example/techcorp/Difficulty.class
 com/example/techcorp/GameEngine.class
 com/example/techcorp/ConsoleUI.class
+com/example/techcorp/GameEngine$1.class
 com/example/techcorp/Manager.class
 com/example/techcorp/Workable.class
 com/example/techcorp/Employee.class

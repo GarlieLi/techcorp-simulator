@@ -26,7 +26,12 @@ public class Main {
                 "Available projects were not added correctly.";
                 
             ConsoleUI ui = new ConsoleUI();
-            GameEngine engine = new GameEngine(company, ui);
+            Difficulty difficulty = ui.chooseDifficulty();
+            GameEngine engine = new GameEngine(
+                company,
+                ui,
+                difficulty
+            );
             
             engine.start();
         

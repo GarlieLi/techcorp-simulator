@@ -15,8 +15,12 @@ public class GameEngine {
     private ConsoleUI ui;
     private boolean running;
     private int turn;
-
-    public GameEngine(Company company, ConsoleUI ui) {
+    private Difficulty difficulty;
+    
+    public GameEngine(
+        Company company,
+        ConsoleUI ui,
+        Difficulty difficulty){
 
         if (company == null) {
             throw new IllegalArgumentException(
@@ -30,9 +34,16 @@ public class GameEngine {
             );
         }
 
+        if (difficulty == null) {
+            throw new IllegalArgumentException(
+                "Difficulty cannot be null."
+            );
+        }
+
         this.company = company;
         this.aiCompany = initializeAiCompany(company);
         this.ui = ui;
+        this.difficulty = difficulty;
         this.running = true;
         this.turn = 1;
 
@@ -507,7 +518,37 @@ public class GameEngine {
         
         int actions = 0;
         
-        while (actions < 3) {
+        int maxActions;
+        
+        switch (difficulty) {
+            case EASY:
+                maxActions = 1;
+            break;
+                
+            case HARD:
+                maxActions = 3;
+            break;
+                
+            default:
+                maxActions = 2;
+            }
+
+        double aiSafetyCash;
+        
+        switch (difficulty) {
+            case EASY:
+                aiSafetyCash = 45000;
+            break;
+                
+            case HARD:
+                aiSafetyCash = 20000;
+            break;
+                
+            default:
+                aiSafetyCash = 30000;
+            }
+            
+        while (actions < maxActions){
 
             if (aiCompany.getCash()
                     < aiCompany.calculateTotalSalaries() * 2) {
@@ -545,27 +586,43 @@ public class GameEngine {
                 && aiCompany.calculateTotalSalaries()
                     < aiCompany.getCash() / 2) {
                 
-                actionTaken = tryExpandAiTeam(aiActions);
+                actionTaken = tryExpandAiTeam(
+                    aiActions,
+                    aiSafetyCash
+                );
             }
 
             activeProjects = countActiveProjects(aiCompany);
             productivity = aiCompany.calculateTotalProductivity();
-            
-            if (activeProjects
-                < Math.max(1, productivity / 12)
-                && !aiCompany.getAvailableProjects().isEmpty()
-                && aiCompany.getCash() > 30000) {
+
+            if (
+                (difficulty == Difficulty.EASY
+                    && activeProjects < Math.max(1, productivity / 18)
+                )
+                ||
+                (difficulty == Difficulty.NORMAL
+                    && activeProjects < Math.max(1, productivity / 16)
+                )
+                ||
+                (difficulty == Difficulty.HARD
+                    && activeProjects < Math.max(1, productivity / 12)
+                )
+            ) {
+                
+                if (!aiCompany.getAvailableProjects().isEmpty()
+                    && aiCompany.getCash() > aiSafetyCash) {
+                
+                    Project bestProject = chooseBestProject(aiCompany);
                     
-                Project bestProject =
-                    chooseBestProject(aiCompany);
-                
-                aiCompany.acceptProject(bestProject);
-                
-                aiActions.add(
-                    "Accepted project: "
-                    + bestProject.getName()
-                );
-                actionTaken = true;
+                    aiCompany.acceptProject(bestProject);
+                    
+                    aiActions.add(
+                        "Accepted project: "
+                        + bestProject.getName()
+                    );
+                    
+                    actionTaken = true;
+                }
             }
             
             if (!actionTaken) {
@@ -596,7 +653,9 @@ public class GameEngine {
             
         for (Project project : targetCompany.getAvailableProjects()) {
 
-            if (turn <= 2 && project.getRequiredWork() > 60) {
+            if (difficulty != Difficulty.HARD
+                && turn <= 2
+                && project.getRequiredWork() > 60){
                 continue;
             }
             
@@ -624,10 +683,27 @@ public class GameEngine {
         return bestProject;
     }
 
-    private boolean tryExpandAiTeam(List<String> aiActions){
+    private boolean tryExpandAiTeam(
+        List<String> aiActions,
+        double aiSafetyCash){
 
-        if (aiCompany.getAutomatedTools().size() < 3
-                && aiCompany.getCash() > 45000
+        int maxTools;
+        
+        switch (difficulty) {
+            case EASY:
+                maxTools = 1;
+            break;
+                
+            case HARD:
+                maxTools = 3;
+            break;
+            
+            default:
+                maxTools = 2;
+            }
+
+        if (aiCompany.getAutomatedTools().size() < maxTools
+                && aiCompany.getCash() > aiSafetyCash + 15000
                 && aiCompany.canAfford(AUTOMATED_TOOL_COST)
                 && aiCompany.getCash() - AUTOMATED_TOOL_COST >= 30000) {
 
@@ -643,8 +719,23 @@ public class GameEngine {
             return true;
         }
 
-        if (aiCompany.getFreelancerBots().size() < 2
-                && aiCompany.getCash() > 70000
+        int maxBots;
+        
+        switch (difficulty) {
+            case EASY:
+                maxBots = 1;
+            break;
+            
+            case HARD:
+                maxBots = 3;
+            break;
+            
+            default:
+                maxBots = 2;
+            }
+
+        if (aiCompany.getFreelancerBots().size() < maxBots
+                && aiCompany.getCash() > aiSafetyCash + 40000
                 && aiCompany.canAfford(FREELANCER_BOT_COST)
                 && aiCompany.getCash() - FREELANCER_BOT_COST >= 30000) {
 
@@ -661,7 +752,7 @@ public class GameEngine {
         }
 
         if (aiCompany.getEmployees().size() < 5
-                && aiCompany.getCash() > 40000
+                && aiCompany.getCash() > aiSafetyCash + 10000
                 && aiCompany.canAfford(INTERN_HIRE_COST)) {
                     
             aiCompany.spendBudget(INTERN_HIRE_COST);
