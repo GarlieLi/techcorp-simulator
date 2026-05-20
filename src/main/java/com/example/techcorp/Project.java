@@ -100,51 +100,7 @@ public class Project {
         }
     }
 
-    public void workOneTurn() {
-
-        if (status != ProjectStatus.IN_PROGRESS) {
-            return;
-        }
-
-        int oldProgress = progress;
-        int workDone = 0;
-
-        for (Workable workable: team) {
-            workDone += workable.work();
-        }
-
-        progress += workDone;
-
-        if (progress > requiredWork) {
-            progress = requiredWork;
-        }
-
-        assert progress >= oldProgress :
-            "Project progress should not decrease.";
-
-        assert progress <= requiredWork :
-            "Project progress exceeded required work.";
-
-        System.out.println(
-            "[" + name + "] +"
-            + workDone
-            + " progress → "
-            + progress
-            + "/"
-            + requiredWork
-        );
-
-        if (progress >= requiredWork) {
-
-            status = ProjectStatus.FINISHED;
-
-            assert status == ProjectStatus.FINISHED;
-        }
-    }
-
-    public void workOneTurn(
-        int productivity,
-        String companyLabel) {
+    public void workOneTurn(int productivity) {
         
         if (status != ProjectStatus.IN_PROGRESS) {
             return;
@@ -163,24 +119,6 @@ public class Project {
         assert progress <= requiredWork :
         "Project progress exceeded required work.";
         
-        if (progress >= requiredWork) {
-            
-        System.out.println(
-            "[" + companyLabel + "] "
-            + name
-            + " completed"
-        );
-    } else {
-        
-        System.out.println(
-            "[" + companyLabel + "] "
-            + name
-            + " "
-            + progress
-            + "/"
-            + requiredWork
-        );
-    }
         if (progress >= requiredWork) {
             status = ProjectStatus.FINISHED;
             assert status == ProjectStatus.FINISHED;

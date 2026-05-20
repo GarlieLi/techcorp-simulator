@@ -16,6 +16,8 @@ public class GameEngine {
     private boolean running;
     private int turn;
     private Difficulty difficulty;
+    private double playerExpansionCost;
+    private double aiExpansionCost;
     
     public GameEngine(
         Company company,
@@ -57,23 +59,32 @@ public class GameEngine {
     public void start() {
         
         while (running) {
+
+            playerExpansionCost = 0;
+            aiExpansionCost = 0;
             
-            ui.showTurnHeader(turn);
+            ui.showTurnHeader(turn, true);
             boolean turnEnded = false;
+            boolean firstMenu = true;
             
             while (running && !turnEnded) {
+                if (!firstMenu) {
+                    ui.showTurnHeader(turn, false);
+                }
                 ui.showTurnSummary(company);
+
                 ui.showMainMenu();
                 int choice = ui.readMenuChoice();
                 turnEnded = handleChoice(choice);
+                firstMenu = false;
             }
             if (!running) {
                 break;
             }
             
-            processAiTurn();
+            List<String> aiActions = processAiTurn();
             
-            if (!resolveTurnEnd()) {
+            if (!resolveTurnEnd(aiActions)) {
                 continue;
             }
             
@@ -118,10 +129,10 @@ public class GameEngine {
         };
     }
 
-    private boolean resolveTurnEnd() {
+    private boolean resolveTurnEnd(List<String> aiActions) {
         
-        progressAllProjects(company);
-        progressAllProjects(aiCompany);
+        List<String> playerProjectSummary = progressAllProjects(company);
+        List<String> aiProjectSummary = progressAllProjects(aiCompany);
         
         double playerSalary =
             company.calculateTotalSalaries();
@@ -156,6 +167,11 @@ public class GameEngine {
             - playerCashBefore
             + playerSalary;
 
+    double playerNetIncome =
+            playerRewards
+            - playerSalary
+            - playerExpansionCost;
+
     double aiSalary =
             aiCompany.calculateTotalSalaries();
 
@@ -189,29 +205,167 @@ public class GameEngine {
             - aiCashBefore
             + aiSalary;
 
+    double aiNetIncome =
+            aiRewards
+            - aiSalary
+            - aiExpansionCost;
+
     System.out.println();
-    System.out.println("=== TURN RESULTS ===");
+    System.out.println(
+        "=== TURN "
+        + turn
+        + " SUMMARY ==="
+    );
+
     System.out.println();
 
-    ui.showTurnResults(
-            "PLAYER",
-            playerSalary,
-            playerRewards,
-            company.getCash()
-        );
+    System.out.println("AI Actions:");
 
-    ui.showTurnResults(
-            "AI",
-            aiSalary,
-            aiRewards,
-            aiCompany.getCash()
-        );
-        advanceTurn();
-        return true;
+    if (aiActions.isEmpty()) {
+
+        System.out.println("- No actions");
+
+    } else {
+
+        for (String action : aiActions) {
+
+            System.out.println(
+                "- " + action
+            );
+        }
     }
 
-    private void progressAllProjects(Company targetCompany) {
+    System.out.println();
+
+    System.out.println("PLAYER");
+    System.out.println("Projects:");
+
+    for (String line : playerProjectSummary) {
+
+        System.out.println(line);
+    }
+
+    System.out.println();
+
+    System.out.println("Financial:");
+    
+    if (playerRewards > 0) {
         
+        System.out.println(
+            "Reward: +"
+            + (long) playerRewards
+        );
+    }
+    
+    System.out.println(
+        "Salaries: -"
+        + (long) playerSalary
+    );
+    
+    if (playerExpansionCost > 0) {
+        
+        System.out.println(
+            "Expansion: -"
+            + (long) playerExpansionCost
+        );
+    }
+    
+    System.out.println(
+        "Net Income: "
+        + (playerNetIncome >= 0 ? "+" : "")
+        + (long) playerNetIncome
+    );
+    
+    System.out.println(
+        "Cash: "
+        + (long) company.getCash()
+    );
+    
+    System.out.println();
+    System.out.println("Company:");
+    
+    System.out.println(
+        "Employees: "
+        + company.getEmployees().size()
+        + " | FreelancerBots: "
+        + company.getFreelancerBots().size()
+        + " | AutomatedTools: "
+        + company.getAutomatedTools().size()
+    );
+    
+    System.out.println(
+        "Productivity: "
+        + company.calculateTotalProductivity()
+    );
+
+    System.out.println();
+
+    System.out.println("AI");
+    System.out.println("Projects:");
+
+    for (String line : aiProjectSummary) {
+
+        System.out.println(line);
+    }
+
+    System.out.println();
+
+    System.out.println("Financial:");
+    
+    if (aiRewards > 0) {
+        System.out.println(
+            "Reward: +"
+            + (long) aiRewards
+        );
+    }
+    
+    System.out.println(
+        "Salaries: -"
+        + (long) aiSalary
+    );
+    
+    if (aiExpansionCost > 0) {
+        System.out.println(
+            "Expansion: -"
+            + (long) aiExpansionCost
+        );
+    }
+    
+    System.out.println(
+        "Net Income: "
+        + (aiNetIncome >= 0 ? "+" : "")
+        + (long) aiNetIncome
+    );
+    
+    System.out.println(
+        "Cash: "
+        + (long) aiCompany.getCash()
+    );
+    
+    System.out.println();
+    System.out.println("Company:");
+    
+    System.out.println(
+        "Employees: "
+        + aiCompany.getEmployees().size()
+        + " | FreelancerBots: "
+        + aiCompany.getFreelancerBots().size()
+        + " | AutomatedTools: "
+        + aiCompany.getAutomatedTools().size()
+    );
+    
+    System.out.println(
+        "Productivity: "
+        + aiCompany.calculateTotalProductivity()
+    );
+
+    System.out.println();
+    return true;
+    }
+
+    private List<String> progressAllProjects(Company targetCompany){
+
+        List<String> summary = new ArrayList<>();
         List<Project> activeProjects = new ArrayList<>();
         
         for (Project project : targetCompany.getProjects()) {
@@ -226,7 +380,7 @@ public class GameEngine {
         }
         
         if (activeProjects.isEmpty()) {
-            return;
+            return summary;
         }
         
         String companyLabel =
@@ -240,9 +394,6 @@ public class GameEngine {
         List<Project> unfinishedProjects =
             new ArrayList<>(activeProjects);
             
-        List<String> allocations =
-            new ArrayList<>();
-            
         for (Project project : activeProjects) {
             
             int remainingWork =
@@ -251,16 +402,9 @@ public class GameEngine {
                 
             if (remainingWork <= remainingProductivity
                 && unfinishedProjects.size() > 1) {
-                    
-                allocations.add(
-                    project.getName()
-                    + ": "
-                    + remainingWork
-                );
                 
                 project.workOneTurn(
-                    remainingWork,
-                    companyLabel
+                    remainingWork
                 );
                 
                 remainingProductivity -= remainingWork;
@@ -278,26 +422,6 @@ public class GameEngine {
             if (productivityPerProject < 1) {
                 productivityPerProject = 1;
             }
-            
-            for (Project project : unfinishedProjects) {
-                allocations.add(
-                    project.getName()
-                    + ": "
-                    + productivityPerProject
-                );
-            }
-        }
-        
-        System.out.println();
-        
-        System.out.println(
-            "[" + companyLabel + "] Productivity Allocation:"
-        );
-        
-        for (String allocation : allocations) {
-            System.out.println(
-                "- " + allocation
-            );
         }
         
         for (Project project : unfinishedProjects) {
@@ -310,10 +434,30 @@ public class GameEngine {
             }
             
             project.workOneTurn(
-                productivityPerProject,
-                companyLabel
+                productivityPerProject
             );
+
+            if (project.isFinished()) {
+                summary.add(
+                    "- "
+                    + project.getName()
+                    + " COMPLETED (+"
+                    + (long) project.getReward()
+                    + ")"
+                );
+            } else {
+                
+                summary.add(
+                    "- "
+                    + project.getName()
+                    + ": "
+                    + project.getProgress()
+                    + "/"
+                    + project.getRequiredWork()
+                );
+            }
         }
+        return summary;
     }
 
     private boolean acceptProject() {
@@ -406,6 +550,7 @@ public class GameEngine {
         }
 
         company.spendBudget(INTERN_HIRE_COST);
+        playerExpansionCost += INTERN_HIRE_COST;
         Intern intern = new Intern(company.nextInternName(), 2, 1000);
         company.hire(intern);
         addWorkerToCompanyProjects(company, intern);
@@ -422,6 +567,7 @@ public class GameEngine {
         }
 
         company.spendBudget(FREELANCER_BOT_COST);
+        playerExpansionCost += FREELANCER_BOT_COST;
         FreelancerBot bot = new FreelancerBot(company.nextFreelancerBotName(), 4);
         company.addFreelancerBot(bot);
         addWorkerToCompanyProjects(company, bot);
@@ -438,6 +584,7 @@ public class GameEngine {
         }
 
         company.spendBudget(AUTOMATED_TOOL_COST);
+        playerExpansionCost += AUTOMATED_TOOL_COST;
         AutomatedTool tool = new AutomatedTool(company.nextAutomatedToolName(), 2);
         company.addAutomatedTool(tool);
         addWorkerToCompanyProjects(company, tool);
@@ -512,7 +659,7 @@ public class GameEngine {
         throw new IllegalStateException("Unknown employee type.");
     }
 
-    private void processAiTurn() {
+    private List<String> processAiTurn() {
 
         List<String> aiActions = new ArrayList<>();
         
@@ -630,17 +777,7 @@ public class GameEngine {
             }
             actions++;
         }
-        System.out.println();
-        System.out.println("=== AI TURN ===");
-        
-        if (aiActions.isEmpty()) {
-            System.out.println("- No actions taken");
-        } else {
-            
-            for (String action : aiActions) {
-                System.out.println("- " + action);
-            }
-        }
+        return aiActions;
     }
 
     private Project chooseBestProject(Company targetCompany) {
@@ -708,6 +845,7 @@ public class GameEngine {
                 && aiCompany.getCash() - AUTOMATED_TOOL_COST >= 30000) {
 
             aiCompany.spendBudget(AUTOMATED_TOOL_COST);
+            aiExpansionCost += AUTOMATED_TOOL_COST;
 
             AutomatedTool tool = new AutomatedTool(
                     aiCompany.nextAutomatedToolName(), 2);
@@ -740,6 +878,7 @@ public class GameEngine {
                 && aiCompany.getCash() - FREELANCER_BOT_COST >= 30000) {
 
             aiCompany.spendBudget(FREELANCER_BOT_COST);
+            aiExpansionCost += FREELANCER_BOT_COST;
 
             FreelancerBot bot = new FreelancerBot(
                     aiCompany.nextFreelancerBotName(), 4);
@@ -756,6 +895,7 @@ public class GameEngine {
                 && aiCompany.canAfford(INTERN_HIRE_COST)) {
                     
             aiCompany.spendBudget(INTERN_HIRE_COST);
+            aiExpansionCost += INTERN_HIRE_COST;
             Intern intern = new Intern(aiCompany.nextInternName(), 2, 1000);
 
             aiCompany.hire(intern);

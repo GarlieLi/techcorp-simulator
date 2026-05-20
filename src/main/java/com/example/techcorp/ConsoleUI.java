@@ -8,10 +8,22 @@ public class ConsoleUI {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public void showTurnHeader(int turn) {
+    public void showTurnHeader(
+        int turn,
+        boolean fullHeader) {
+
         assert turn > 0 : "Turn number should be positive.";
+
         System.out.println();
-        System.out.println("=== TURN " + turn + " ===");
+
+        if (fullHeader) {
+            System.out.println("=== TURN " + turn + " ===");
+            
+        } else {
+            System.out.println(
+                "--- TURN " + turn + " STATUS ---"
+            );
+        }
     }
 
     public void showMainMenu() {
@@ -365,6 +377,7 @@ public class ConsoleUI {
             if (!hasActiveProject) {
                 System.out.println("None");
             }
+            System.out.println();
         }
     }
 
