@@ -88,6 +88,11 @@ public class GameEngine {
                 continue;
             }
             
+            advanceTurn();
+
+            if (!running) {
+                break;
+            }
             turn++;
         }
     }
