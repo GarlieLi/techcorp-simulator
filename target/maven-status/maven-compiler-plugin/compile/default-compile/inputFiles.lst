@@ -6,11 +6,15 @@
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Employee.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/FreelancerBot.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/GameEngine.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/GameService.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Intern.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Main.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Manager.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Payable.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Project.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/ProjectStatus.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/TechCorpApplication.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Tester.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Workable.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/api/GameController.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/api/HealthController.java
