@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>TechCorp Simulator</title>
+
+    <style>
+
+        body {
+
+            background-color: #1e1e1e;
+            color: white;
+            font-family: Arial;
+            margin: 20px;
+        }
+        
+        button {
+
+            padding: 10px;
+            margin: 5px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+
+            background-color: #2563eb;
+        }
+
+        .card {
+
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .project-card {
+
+            border-left: 6px solid #3b82f6;
+        }
+        
+        .active-project {
+
+            border-left: 6px solid #22c55e;
+        }
+
+        #mainLayout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        #leftPanel {
+            width: 38%;
+        }
+        
+        #rightPanel {
+            width: 62%;
+        }
+        
+    </style>
+
+</head>
+
+<body style="
+    font-family: Arial;
+    margin: 20px;
+">
+
+    <h1>TechCorp Simulator</h1>
+
+    <h3 id="turnInfo"></h3>
+
+    <div id="mainLayout">
+
+        <!-- LEFT PANEL -->
+
+        <div id="leftPanel">
+
+            <button onclick="hireIntern()">
+                Hire Intern
+            </button>
+
+            <button onclick="hireFreelancer()">
+                Hire FreelancerBot
+            </button>
+
+            <button onclick="buyTool()">
+                Buy Tool
+            </button>
+
+            <button onclick="endTurn()">
+                End Turn
+            </button>
+
+            <hr>
+
+            <h2>Company Status</h2>
+
+            <h2>Game Log</h2>
+            
+            <div id="gameLog" class="card"></div>
+
+            <p id="cash"></p>
+
+            <p id="employees"></p>
+
+            <p id="productivity"></p>
+
+            <h2>Active Projects</h2>
+
+            <div id="activeProjects"></div>
+
+        </div>
+
+        <!-- RIGHT PANEL -->
+
+        <div id="rightPanel">
+
+            <h2>Available Projects</h2>
+
+            <div id="projects"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        async function loadGameState() {
+
+            const response =
+                await fetch("/game/state");
+
+            const data =
+                await response.json();
+
+            updateUI(data);
+        }
+
+        function addLog(message) {
+            
+            const logDiv =
+                document.getElementById(
+                "gameLog"
+            );
+            
+            logDiv.innerHTML =
+                `<p>${message}</p>`
+                + logDiv.innerHTML;
+        }
+
+        async function hireIntern() {
+            
+            await fetch(
+                "/game/hire/intern"
+            );
+            
+            addLog(
+                "Intern hired."
+            );
+            
+            loadGameState();
+        }
+
+        async function hireFreelancer() {
+
+            await fetch(
+                "/game/hire/freelancer"
+            );
+
+            loadGameState();
+        }
+
+        async function buyTool() {
+
+            await fetch(
+                "/game/buy/tool"
+            );
+
+            loadGameState();
+        }
+
+        async function endTurn() {
+            
+            await fetch(
+                "/game/endTurn"
+            );
+            
+            addLog(
+                "Turn ended."
+            );
+            
+            loadGameState();
+        }
+
+        async function acceptProject(
+            projectName) {
+                
+            await fetch(
+                "/game/accept/"
+                + projectName
+            );
+            
+            addLog(
+                projectName
+                + " accepted."
+            );
+            
+            loadGameState();
+        }
+
+        function updateUI(data) {
+
+            document.getElementById(
+                "turnInfo"
+            ).textContent =
+                "Turn: "
+                + data.turn;
+
+            document.getElementById(
+                "cash"
+            ).textContent =
+                "Cash: " + data.cash;
+
+            document.getElementById(
+                "employees"
+            ).textContent =
+                "Employees: "
+                + data.employees;
+
+            document.getElementById(
+                "productivity"
+            ).textContent =
+                "Productivity: "
+                + data.productivity;
+
+            /* ACTIVE PROJECTS */
+
+            const activeProjectsDiv =
+                document.getElementById(
+                    "activeProjects"
+                );
+
+            activeProjectsDiv.innerHTML = "";
+
+            for (const project
+                    of data.activeProjects) {
+
+                activeProjectsDiv.innerHTML += `
+                    <div class="card active-project">
+
+                        <h3>${project.name}</h3>
+
+                        <p>
+                            Progress:
+                            ${project.progress}
+                            /
+                            ${project.requiredWork}
+                        </p>
+
+                        <progress
+                            value="${project.progress}"
+                            max="${project.requiredWork}"
+                            style="
+                                width:100%;
+                                height:25px;
+                            ">
+                        </progress>
+
+                        <p>
+                            Status:
+                            ${project.status}
+                        </p>
+
+                        <p>
+                            Reward:
+                            ${project.reward}
+                        </p>
+
+                    </div>
+                `;
+            }
+
+            /* AVAILABLE PROJECTS */
+
+            const projectsDiv =
+                document.getElementById(
+                    "projects"
+                );
+
+            projectsDiv.innerHTML = "";
+
+            for (const project
+                    of data.availableProjects) {
+
+                projectsDiv.innerHTML += `
+                    <div class="card project-card">
+
+                        <h3>${project.name}</h3>
+
+                        <p>
+                            Work:
+                            ${project.requiredWork}
+                        </p>
+
+                        <p>
+                            Reward:
+                            ${project.reward}
+                        </p>
+
+                        <button
+                            onclick="
+                                acceptProject(
+                                    '${project.name}'
+                                )
+                            ">
+
+                            Accept Project
+
+                        </button>
+
+                    </div>
+                `;
+            }
+        }
+
+        loadGameState();
+
+    </script>
+
+</body>
+
+</html>

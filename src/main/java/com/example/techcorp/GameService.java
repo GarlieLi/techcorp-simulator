@@ -4,12 +4,16 @@ public class GameService {
 
     private Company company;
 
+    private int turn;
+
     public GameService() {
 
         company = new Company(
             "TechCorp",
             50000
         );
+
+        turn = 1;
 
         company.hire(
             new Developer(
@@ -89,6 +93,10 @@ public class GameService {
         return company;
     }
 
+    public int getTurn() {
+        return turn;
+    }
+
     public String acceptProject(
         String projectName) {
             
@@ -130,7 +138,70 @@ public class GameService {
         company.collectProjectRewards();
         
         company.paySalaries();
+
+        turn++;
         
         return "Turn ended.";
+    }
+
+    public String hireIntern() {
+
+        if (!company.canAfford(1000)) {
+            return "Not enough cash.";
+        }
+
+        company.spendBudget(1000);
+
+        Intern intern =
+        new Intern(
+            company.nextInternName(),
+            2,
+            1000
+        );
+
+        company.hire(intern);
+
+        return intern.getName()
+        + " hired.";
+    }
+
+    public String hireFreelancerBot() {
+        
+        if (!company.canAfford(18000)) {
+            return "Not enough cash.";
+        }
+        
+        company.spendBudget(18000);
+        
+        FreelancerBot bot =
+            new FreelancerBot(
+            company.nextFreelancerBotName(),
+            4
+        );
+        
+        company.addFreelancerBot(bot);
+        
+        return bot.getName()
+        + " hired.";
+    }
+
+    public String buyAutomatedTool() {
+        
+        if (!company.canAfford(5000)) {
+            return "Not enough cash.";
+        }
+        
+        company.spendBudget(5000);
+        
+        AutomatedTool tool =
+            new AutomatedTool(
+            company.nextAutomatedToolName(),
+            2
+        );
+        
+        company.addAutomatedTool(tool);
+        
+        return tool.getName()
+            + " purchased.";
     }
 }

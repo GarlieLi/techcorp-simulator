@@ -26,6 +26,10 @@ public class GameController {
             gameService.getCompany();
 
         return Map.of(
+
+            "turn",
+                gameService.getTurn(),
+
             "company",
                 company.getName(),
 
@@ -91,6 +95,78 @@ public class GameController {
                 
             "activeProjects",
                 company.getProjects()
+        );
+    }
+
+    @GetMapping("/game/hire/intern")
+    public Map<String, Object> hireIntern() {
+        
+        String result =
+            gameService.hireIntern();
+            
+        Company company =
+            gameService.getCompany();
+            
+        return Map.of(
+            "message",
+                result,
+
+            "cash",
+                company.getCash(),
+
+            "employees",
+                company.getEmployees().size(),
+
+            "productivity",
+                company.calculateTotalProductivity()
+        );
+    }
+
+    @GetMapping("/game/hire/freelancer")
+    public Map<String, Object> hireFreelancer() {
+        
+        String result =
+            gameService.hireFreelancerBot();
+
+        Company company =
+            gameService.getCompany();
+
+        return Map.of(
+            "message",
+                result,
+
+            "cash",
+                company.getCash(),
+
+            "freelancerBots",
+                company.getFreelancerBots().size(),
+
+            "productivity",
+                company.calculateTotalProductivity()
+        );
+    }
+
+    @GetMapping("/game/buy/tool")
+    public Map<String, Object> buyTool() {
+        
+        String result =
+            gameService.buyAutomatedTool();
+
+        Company company =
+            gameService.getCompany();
+            
+        return Map.of(
+            "message",
+                result,
+
+            "cash",
+                company.getCash(),
+
+            "automatedTools",
+                company.getAutomatedTools().size(),
+
+            "productivity",
+                company.calculateTotalProductivity()
         );
     }
 }
