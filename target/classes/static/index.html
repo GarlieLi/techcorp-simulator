@@ -102,6 +102,16 @@
 
             <h2>Company Status</h2>
 
+            <h2>AI Status</h2>
+            
+            <p id="aiCash"></p>
+            
+            <p id="aiProductivity"></p>
+            
+            <p id="aiProjects"></p>
+
+            <div id="aiActiveProjects"></div>
+
             <h2>Game Log</h2>
             
             <div id="gameLog" class="card"></div>
@@ -161,10 +171,6 @@
                 "/game/hire/intern"
             );
             
-            addLog(
-                "Intern hired."
-            );
-            
             loadGameState();
         }
 
@@ -192,10 +198,6 @@
                 "/game/endTurn"
             );
             
-            addLog(
-                "Turn ended."
-            );
-            
             loadGameState();
         }
 
@@ -204,13 +206,39 @@
                 
             await fetch(
                 "/game/accept/"
-                + projectName
+                + encodeURIComponent(
+                    projectName)
             );
             
-            addLog(
-                projectName
-                + " accepted."
+            loadGameState();
+        }
+
+        async function holdProject(projectName) {
+            
+            const response =
+                await fetch(
+                "/game/hold/"
+                + encodeURIComponent(
+                projectName)
             );
+            
+            const data =
+                await response.json();
+            
+            loadGameState();
+        }
+        
+        async function resumeProject(projectName) {
+            
+            const response =
+                await fetch(
+                "/game/resume/"
+                + encodeURIComponent(
+                projectName)
+            );
+            
+            const data =
+                await response.json();
             
             loadGameState();
         }
@@ -240,49 +268,86 @@
                 "Productivity: "
                 + data.productivity;
 
-            /* ACTIVE PROJECTS */
+            document.getElementById(
+                "aiCash"
+            ).textContent =
+                "AI Cash: "
+                + data.aiCash;
+                
+            document.getElementById(
+                "aiProductivity"
+            ).textContent =
+                "AI Productivity: "
+                + data.aiProductivity;
+                
+            document.getElementById(
+                "aiProjects"
+            ).textContent =
+                "AI Active Projects: "
+                + data.aiProjects;
 
+            document.getElementById(
+                "gameLog"
+            ).innerHTML =
+                data.turnLog;
+
+            /* ACTIVE PROJECTS */
+            
             const activeProjectsDiv =
                 document.getElementById(
                     "activeProjects"
                 );
-
+                
             activeProjectsDiv.innerHTML = "";
-
+            
             for (const project
-                    of data.activeProjects) {
-
+                of data.activeProjects) {
+                    
                 activeProjectsDiv.innerHTML += `
                     <div class="card active-project">
-
-                        <h3>${project.name}</h3>
-
+                        
+                        <h3>
+                            ${project.name}
+                        </h3>
+                        
                         <p>
                             Progress:
                             ${project.progress}
                             /
                             ${project.requiredWork}
                         </p>
-
+                        
                         <progress
                             value="${project.progress}"
                             max="${project.requiredWork}"
                             style="
-                                width:100%;
-                                height:25px;
+                            width:100%;
+                            height:25px;
                             ">
                         </progress>
-
+                        
                         <p>
                             Status:
                             ${project.status}
                         </p>
-
+                        
                         <p>
                             Reward:
                             ${project.reward}
                         </p>
-
+                        
+                        <div style="
+                            margin-top:10px;
+                        ">
+                        
+                            <button onclick="holdProject('${project.name}')">
+                                Hold
+                            </button>
+                            
+                            <button onclick="resumeProject('${project.name}')">
+                                Resume
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -325,6 +390,42 @@
 
                         </button>
 
+                    </div>
+                `;
+            }
+
+            const aiProjectsDiv =
+                document.getElementById(
+                    "aiActiveProjects"
+                );
+                
+            aiProjectsDiv.innerHTML = "";
+            
+            for (const project
+                of data.aiActiveProjects) {
+                    
+                aiProjectsDiv.innerHTML += `
+                
+                    <div class="card">
+                        <h3>
+                            ${project.name}
+                        </h3>
+                        
+                        <p>
+                            Progress:
+                            ${project.progress}
+                            /
+                            ${project.requiredWork}
+                        </p>
+                        
+                        <progress
+                            value="${project.progress}"
+                            max="${project.requiredWork}"
+                            style="
+                                width:100%;
+                                height:20px;
+                            ">
+                        </progress>
                     </div>
                 `;
             }

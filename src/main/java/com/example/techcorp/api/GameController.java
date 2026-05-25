@@ -21,32 +21,74 @@ public class GameController {
 
     @GetMapping("/game/state")
     public Map<String, Object> gameState() {
-
+        
         Company company =
             gameService.getCompany();
+            
+        Company aiCompany =
+            gameService.getAiCompany();
+            
+        return Map.ofEntries(
+            
+            Map.entry(
+                "turn",
+                gameService.getTurn()
+            ),
 
-        return Map.of(
-
-            "turn",
-                gameService.getTurn(),
-
-            "company",
-                company.getName(),
-
-            "cash",
-                company.getCash(),
-
-            "employees",
-                company.getEmployees().size(),
-
-            "productivity",
-                company.calculateTotalProductivity(),
-
-            "activeProjects",
-                company.getProjects(),
-
-            "availableProjects",
+            Map.entry(
+                "turnLog",
+                gameService.getTurnLog()
+            ),
+            
+            Map.entry(
+                "company",
+                company.getName()
+            ),
+            
+            Map.entry(
+                "cash",
+                company.getCash()
+            ),
+            
+            Map.entry(
+                "employees",
+                company.getEmployees().size()
+            ),
+            
+            Map.entry(
+                "productivity",
+                company.calculateTotalProductivity()
+            ),
+            
+            Map.entry(
+                "availableProjects",
                 company.getAvailableProjects()
+            ),
+            
+            Map.entry(
+                "activeProjects",
+                company.getProjects()
+            ),
+            
+            Map.entry(
+                "aiCash",
+                aiCompany.getCash()
+            ),
+            
+            Map.entry(
+                "aiProductivity",
+                aiCompany.calculateTotalProductivity()
+            ),
+            
+            Map.entry(
+                "aiProjects",
+                aiCompany.getProjects().size()
+            ),
+            
+            Map.entry(
+                "aiActiveProjects",
+                aiCompany.getProjects()
+            )
         );
     }
 
@@ -71,6 +113,36 @@ public class GameController {
 
             "availableProjectsCount",
                 company.getAvailableProjects().size()
+        );
+    }
+
+    @GetMapping("/game/hold/{projectName}")
+    public Map<String, Object> holdProject(
+        @PathVariable("projectName") String projectName) {
+            
+        String result =
+            gameService.holdProject(
+                projectName
+            );
+            
+        return Map.of(
+            "message",
+            result
+        );
+    }
+
+    @GetMapping("/game/resume/{projectName}")
+    public Map<String, Object> resumeProject(
+        @PathVariable("projectName") String projectName){
+            
+        String result =
+            gameService.resumeProject(
+                projectName
+            );
+            
+        return Map.of(
+            "message",
+            result
         );
     }
 
