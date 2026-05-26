@@ -6,11 +6,13 @@ public class GameService {
     private Company aiCompany;
 
     private int turn;
-    private String turnLog;
 
+    private String turnLog;
     private String aiDifficulty;
+    private String winner;
 
     private boolean gameStarted;
+    private boolean gameOver;
 
     public GameService() {
 
@@ -23,6 +25,8 @@ public class GameService {
 
         aiDifficulty = "NORMAL";
         gameStarted = false;
+        gameOver = false;
+        winner = "";
 
         turnLog = "Game started.";
 
@@ -198,10 +202,32 @@ public class GameService {
         }
             
         company.collectProjectRewards();
+        
+        try {
+            company.paySalaries();
+
+        } catch (IllegalStateException e) {
             
-        company.paySalaries();
-            
+            gameOver = true;
+            winner = "AI WINS";
+            turnLog = "PLAYER BANKRUPT";
+
+            return "Game Over";
+        }
+        
         processAiTurn(log);
+        
+        try {
+            aiCompany.paySalaries();
+        } catch (IllegalStateException e) {
+            
+            gameOver = true;
+            winner = "PLAYER WINS";
+            turnLog = "AI BANKRUPT";
+            return "Game Over";
+        }
+
+        advanceTurn();
         
         turn++;
         
@@ -439,7 +465,6 @@ public class GameService {
         }
         
         aiCompany.collectProjectRewards();
-        aiCompany.paySalaries();
     }
 
     public void setAiDifficulty(
@@ -463,5 +488,85 @@ public class GameService {
 
     public boolean isGameStarted() {
         return gameStarted;
+    }
+
+    private boolean hasCompletedAllProjects(
+        Company targetCompany) {
+            
+        if (targetCompany
+                .getProjects()
+                .isEmpty()) {
+            return false;
+        }
+        
+        if (!targetCompany
+                .getAvailableProjects()
+                .isEmpty()) {
+            return false;
+        }
+        
+        for (Project project
+                : targetCompany.getProjects()) {
+
+            if (!project.isFinished()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void advanceTurn() {
+        
+        boolean playerDone =
+            hasCompletedAllProjects(
+                company
+            );
+            
+        boolean aiDone =
+            hasCompletedAllProjects(
+                aiCompany
+            );
+            
+        if (!playerDone && !aiDone) {
+            return;
+        }
+        
+        gameOver = true;
+        
+        if (playerDone && aiDone) {
+            
+            if (company.getCash()
+                    > aiCompany.getCash()) {
+
+                winner = "PLAYER WINS";
+            }
+            
+            else if (
+                aiCompany.getCash()
+                    > company.getCash()
+            ) {
+                winner = "AI WINS";
+            }
+            
+            else {
+                winner = "DRAW";
+            }
+        }
+        
+        else if (playerDone) {
+            winner = "PLAYER WINS";
+        }
+        
+        else {
+            winner = "AI WINS";
+        }
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+    
+    public String getWinner() {
+        return winner;
     }
 }

@@ -133,6 +133,16 @@ public class GameController {
             Map.entry(
                 "activeProjectCount",
                 company.getProjects().size()
+            ),
+
+            Map.entry(
+                "gameOver",
+                gameService.isGameOver()
+            ),
+            
+            Map.entry(
+                "winner",
+                gameService.getWinner()
             )
         );
     }

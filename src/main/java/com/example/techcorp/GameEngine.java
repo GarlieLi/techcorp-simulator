@@ -8,7 +8,6 @@ public class GameEngine {
     private static final double INTERN_HIRE_COST = 1000;
     private static final double FREELANCER_BOT_COST = 18000;
     private static final double AUTOMATED_TOOL_COST = 5000;
-    private static final double AI_MIN_CASH_TO_ACCEPT = 30000;
 
     private Company company;
     private Company aiCompany;
@@ -387,11 +386,6 @@ public class GameEngine {
         if (activeProjects.isEmpty()) {
             return summary;
         }
-        
-        String companyLabel =
-            targetCompany == company
-            ? "PLAYER"
-            : "AI";
             
         int remainingProductivity =
             targetCompany.calculateTotalProductivity();
