@@ -1,5 +1,8 @@
 package com.example.techcorp;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class GameService {
 
     private Company company;
@@ -13,6 +16,9 @@ public class GameService {
 
     private boolean gameStarted;
     private boolean gameOver;
+
+    private double playerExpansionCost;
+    private double aiExpansionCost;
 
     public GameService() {
 
@@ -169,39 +175,14 @@ public class GameService {
     }
 
     public String endTurn() {
+
+        playerExpansionCost = 0;
+        aiExpansionCost = 0;
         
         StringBuilder log =
             new StringBuilder();
         
-        int productivity =
-            company.calculateTotalProductivity();
-        
-        for (Project project
-            : company.getProjects()) {
-                    
-            if (project.getStatus()
-                == ProjectStatus.PLANNED) {
-                project.start();
-            }
-                    
-            project.workOneTurn(
-                productivity
-            );
-                
-            if (!project.isRewardPaid()
-                && project.isFinished()) {
-                
-                log.append(
-                    "PLAYER completed "
-                    + project.getName()
-                    + " (+"
-                    + (long) project.getReward()
-                    + ")<br>"
-                );
-            }
-        }
-            
-        company.collectProjectRewards();
+        progressAllProjects(company);
         
         try {
             company.paySalaries();
@@ -214,8 +195,12 @@ public class GameService {
 
             return "Game Over";
         }
+
+        company.collectProjectRewards();
         
         processAiTurn(log);
+
+        progressAllProjects(aiCompany);
         
         try {
             aiCompany.paySalaries();
@@ -226,6 +211,8 @@ public class GameService {
             turnLog = "AI BANKRUPT";
             return "Game Over";
         }
+
+        aiCompany.collectProjectRewards();
 
         advanceTurn();
         
@@ -253,6 +240,13 @@ public class GameService {
 
         company.hire(intern);
 
+        playerExpansionCost += 1000;
+
+        addWorkerToCompanyProjects(
+            company,
+            intern
+        );
+
         return intern.getName()
         + " hired.";
     }
@@ -272,6 +266,13 @@ public class GameService {
         );
         
         company.addFreelancerBot(bot);
+
+        playerExpansionCost += 18000;
+        
+        addWorkerToCompanyProjects(
+            company,
+            bot
+        );
         
         return bot.getName()
         + " hired.";
@@ -292,9 +293,31 @@ public class GameService {
         );
         
         company.addAutomatedTool(tool);
+
+        playerExpansionCost += 5000;
+        
+        addWorkerToCompanyProjects(
+            company,
+            tool
+        );
         
         return tool.getName()
             + " purchased.";
+    }
+
+    private void addWorkerToCompanyProjects(
+            Company targetCompany,
+            Workable worker) {
+                
+        for (Project project
+                : targetCompany.getProjects()) {
+                    
+            if (project.getStatus()
+                    != ProjectStatus.FINISHED) {
+
+                project.addWorker(worker);
+            }
+        }
     }
 
     public String holdProject(String projectName) {
@@ -333,138 +356,366 @@ public class GameService {
 
     private void processAiTurn(
             StringBuilder log) {
+                
+        int actions = 0;
         
-        int maxProjects;
-        int maxBots;
-        int maxTools;
+        int maxActions;
+        
+        switch (aiDifficulty) {
+            
+            case "EASY":
+                maxActions = 1;
+                break;
+                
+            case "HARD":
+                maxActions = 3;
+                break;
+                
+            default:
+                maxActions = 2;
+        }
+            
         double aiSafetyCash;
         
-        if (aiDifficulty.equals("EASY")) {
-            maxProjects = 1;
-            maxBots = 1;
-            maxTools = 1;
-            aiSafetyCash = 50000;
+        switch (aiDifficulty) {
+            
+            case "EASY":
+                aiSafetyCash = 45000;
+                break;
+                
+            case "HARD":
+                aiSafetyCash = 20000;
+                break;
+                
+            default:
+                aiSafetyCash = 30000;
         }
         
-        else if (aiDifficulty.equals("HARD")) {
-            maxProjects = 3;
-            maxBots = 3;
-            maxTools = 3;
-            aiSafetyCash = 20000;
-        }
-        
-        else {
-            maxProjects = 2;
-            maxBots = 2;
-            maxTools = 2;
-            aiSafetyCash = 35000;
-        }
-        
-        if (aiCompany.getProjects().size()
-                < maxProjects
-                &&
-            !aiCompany
-                .getAvailableProjects()
-                .isEmpty()) {
-                    
-            Project project =
-                aiCompany
-                .getAvailableProjects()
-                .get(0);
+        while (actions < maxActions) {
+            
+            if (aiCompany.getCash()
+                    < aiCompany.calculateTotalSalaries() * 2) {
+                break;
+            }
+            
+            boolean actionTaken = false;
+            
+            int activeProjects =
+                countActiveProjects(aiCompany);
+                
+            int productivity =
+                aiCompany.calculateTotalProductivity();
 
-            aiCompany.acceptProject(
-                project
-            );
+            if (activeProjects == 0
+                && !aiCompany
+                    .getAvailableProjects()
+                    .isEmpty()) {
 
-            log.append(
-                "AI accepted "
-                + project.getName()
-                + "<br>"
-            );
-        }
-        
-        if (aiCompany
-                .getFreelancerBots()
-                .size() < maxBots
-                &&
-            aiCompany.getCash()
-                > aiSafetyCash
-                &&
-            aiCompany.canAfford(
-                18000)) {
-                    
-            FreelancerBot bot =
-                new FreelancerBot(
-                    aiCompany.nextFreelancerBotName(),
-                    12
+                Project bestProject =
+                    chooseBestProject(aiCompany);
+
+                aiCompany.acceptProject(bestProject);
+
+                log.append(
+                    "AI accepted "
+                    + bestProject.getName()
+                    + "<br>"
                 );
                 
-            aiCompany.addFreelancerBot(bot);
+                actionTaken = true;
+            }
             
-            aiCompany.spendBudget(18000);
+            activeProjects =
+                countActiveProjects(aiCompany);
+                
+            productivity =
+                aiCompany.calculateTotalProductivity();
+
+            if (aiCompany.getCash() > 35000
+                    && productivity < 50
+                    && aiCompany.calculateTotalSalaries()
+                        < aiCompany.getCash() / 2) {
+                            
+                actionTaken =
+                    tryExpandAiTeam(
+                        log,
+                        aiSafetyCash
+                    );
+            }
             
-            log.append(
-                "AI bought FreelancerBot<br>"
-            );
+            activeProjects =
+                countActiveProjects(aiCompany);
+                
+            productivity =
+                aiCompany.calculateTotalProductivity();
+
+            boolean shouldAcceptProjects;
+
+            if (aiDifficulty.equals("EASY")) {
+
+                shouldAcceptProjects =
+                    activeProjects
+                    < Math.max(1,
+                        productivity / 18);
+
+            } else if (aiDifficulty.equals("HARD")) {
+
+                shouldAcceptProjects =
+                    activeProjects
+                    < Math.max(1,
+                        productivity / 12);
+
+            } else {
+
+                shouldAcceptProjects =
+                    activeProjects
+                    < Math.max(1,
+                        productivity / 16);
+            }
+            
+            if (shouldAcceptProjects
+                    &&
+                !aiCompany
+                    .getAvailableProjects()
+                    .isEmpty()
+                    &&
+                aiCompany.getCash()
+                    > aiSafetyCash) {
+
+                Project bestProject =
+                    chooseBestProject(aiCompany);
+
+                aiCompany.acceptProject(bestProject);
+
+                log.append(
+                    "AI accepted "
+                    + bestProject.getName()
+                    + "<br>"
+                );
+                actionTaken = true;
+            }
+            
+            if (!actionTaken) {
+                break;
+            }
+            actions++;
+        }
+    }
+
+    private Project chooseBestProject(
+            Company targetCompany) {
+
+        Project bestProject = null;
+
+        double bestValue = 0;
+
+        int productivity =
+            targetCompany
+                .calculateTotalProductivity();
+
+        for (Project project
+                : targetCompany
+                  .getAvailableProjects()) {
+
+            if (!aiDifficulty.equals("HARD")
+                    &&
+                turn <= 2
+                    &&
+                project.getRequiredWork() > 60) {
+
+                continue;
+            }
+
+            if (project.getRequiredWork()
+                    > productivity * 3) {
+
+                continue;
+            }
+
+            double value =
+                (double) project.getReward()
+                / project.getRequiredWork();
+ 
+            if (value > bestValue) {
+
+                bestValue = value;
+                bestProject = project;
+            }
         }
         
-        if (aiCompany
-                .getAutomatedTools()
-                .size() < maxTools
+        if (bestProject == null
+                &&
+            !targetCompany
+                .getAvailableProjects()
+                .isEmpty()) {
+
+            bestProject =
+                targetCompany
+                    .getAvailableProjects()
+                    .get(0);
+        }
+        return bestProject;
+    }
+
+    private int countActiveProjects(
+            Company targetCompany) {
+
+        int count = 0;
+
+        for (Project project
+                : targetCompany.getProjects()) {
+
+            if (project.getStatus()
+                    == ProjectStatus.PLANNED
+                ||
+                project.getStatus()
+                    == ProjectStatus.IN_PROGRESS) {
+
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean tryExpandAiTeam(
+            StringBuilder log,
+            double aiSafetyCash) {
+                
+        int maxTools;
+
+        switch (aiDifficulty) {
+
+            case "EASY":
+                maxTools = 1;
+                break;
+
+            case "HARD":
+                maxTools = 3;
+                break;
+
+            default:
+                maxTools = 2;
+        }
+        
+        if (aiCompany.getAutomatedTools().size()
+                < maxTools
                 &&
             aiCompany.getCash()
-                > aiSafetyCash
+                > aiSafetyCash + 15000
                 &&
-            aiCompany.canAfford(
-                5000)) {
+            aiCompany.canAfford(5000)
+                &&
+            aiCompany.getCash() - 5000
+                >= 30000) {
                     
+            aiCompany.spendBudget(5000);
+            
             AutomatedTool tool =
                 new AutomatedTool(
                     aiCompany.nextAutomatedToolName(),
-                    8
+                    2
                 );
-                
+
             aiCompany.addAutomatedTool(tool);
-            
-            aiCompany.spendBudget(5000);
-            
+
+            aiExpansionCost += 5000;
+
+            addWorkerToCompanyProjects(
+                aiCompany,
+                tool
+            );
+
             log.append(
                 "AI bought AutomatedTool<br>"
             );
+
+            return true;
         }
-        
-        int productivity =
-            aiCompany
-            .calculateTotalProductivity();
-            
-        for (Project project
-                : aiCompany.getProjects()) {
 
-            if (project.getStatus()
-                    == ProjectStatus.PLANNED) {
+        int maxBots;
 
-                project.start();
-            }
+        switch (aiDifficulty) {
+
+            case "EASY":
+                maxBots = 1;
+                break;
+
+            case "HARD":
+                maxBots = 3;
+                break;
+
+            default:
+                maxBots = 2;
+        }
             
-            project.workOneTurn(
-                productivity
+        if (aiCompany.getFreelancerBots().size()
+                < maxBots
+                &&
+            aiCompany.getCash()
+                > aiSafetyCash + 40000
+                &&
+            aiCompany.canAfford(18000)
+                &&
+            aiCompany.getCash() - 18000
+                >= 30000) {
+
+            aiCompany.spendBudget(18000);
+
+            FreelancerBot bot =
+                new FreelancerBot(
+                    aiCompany.nextFreelancerBotName(),
+                    4
+                );
+
+            aiCompany.addFreelancerBot(bot);
+
+            aiExpansionCost += 18000;
+            
+            addWorkerToCompanyProjects(
+                aiCompany,
+                bot
+            );
+
+            log.append(
+                "AI hired FreelancerBot<br>"
             );
             
-            if (!project.isRewardPaid()
-                    && project.isFinished()) {
-
-                log.append(
-                    "AI completed "
-                    + project.getName()
-                    + " (+"
-                    + (long)
-                    project.getReward()
-                    + ")<br>"
-                );
-            }
+            return true;
         }
         
-        aiCompany.collectProjectRewards();
+        if (aiCompany.getEmployees().size()
+                < 5
+                &&
+            aiCompany.getCash()
+                > aiSafetyCash + 10000
+                &&
+            aiCompany.canAfford(1000)) {
+
+            aiCompany.spendBudget(1000);
+
+            Intern intern =
+                new Intern(
+                    aiCompany.nextInternName(),
+                    2,
+                    1000
+                );
+
+            aiCompany.hire(intern);
+
+            aiExpansionCost += 1000;
+            
+            addWorkerToCompanyProjects(
+                aiCompany,
+                intern
+            );
+
+            log.append(
+                "AI hired Intern<br>"
+            );
+            
+            return true;
+        }
+        return false;
     }
 
     public void setAiDifficulty(
@@ -559,6 +810,76 @@ public class GameService {
         
         else {
             winner = "AI WINS";
+        }
+    }
+
+    private void progressAllProjects(
+            Company targetCompany) {
+                
+        List<Project> activeProjects =
+            new ArrayList<>();
+            
+        for (Project project
+                : targetCompany.getProjects()) {
+                    
+            if (project.getStatus()
+                    == ProjectStatus.PLANNED) {
+                project.start();
+            }
+            
+            if (project.getStatus()
+                    == ProjectStatus.IN_PROGRESS) {
+                activeProjects.add(project);
+            }
+        }
+        
+        if (activeProjects.isEmpty()) {
+            return;
+        }
+        
+        int remainingProductivity =
+            targetCompany
+                .calculateTotalProductivity();
+                
+        List<Project> unfinishedProjects =
+            new ArrayList<>(activeProjects);
+            
+        for (Project project : activeProjects) {
+            
+            int remainingWork =
+                project.getRequiredWork()
+                - project.getProgress();
+                
+            if (remainingWork
+                    <= remainingProductivity
+                && unfinishedProjects.size() > 1) {
+                    
+                project.workOneTurn(
+                    remainingWork
+                );
+                
+                remainingProductivity -= remainingWork;
+                unfinishedProjects.remove(project);
+            }
+        }
+        
+        if (!unfinishedProjects.isEmpty()) {
+            
+            int productivityPerProject =
+                remainingProductivity
+                / unfinishedProjects.size();
+                
+            if (productivityPerProject < 1) {
+                productivityPerProject = 1;
+            }
+            
+            for (Project project
+                    : unfinishedProjects) {
+                
+                project.workOneTurn(
+                    productivityPerProject
+                );
+            }
         }
     }
 
