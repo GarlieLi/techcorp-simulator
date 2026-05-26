@@ -8,6 +8,10 @@ public class GameService {
     private int turn;
     private String turnLog;
 
+    private String aiDifficulty;
+
+    private boolean gameStarted;
+
     public GameService() {
 
         company = new Company(
@@ -16,6 +20,10 @@ public class GameService {
         );
 
         turn = 1;
+
+        aiDifficulty = "NORMAL";
+        gameStarted = false;
+
         turnLog = "Game started.";
 
         company.hire(
@@ -171,9 +179,6 @@ public class GameService {
                 == ProjectStatus.PLANNED) {
                 project.start();
             }
-                
-            int oldProgress =
-                project.getProgress();
                     
             project.workOneTurn(
                 productivity
@@ -300,17 +305,47 @@ public class GameService {
         return aiCompany;
     }
 
-    private void processAiTurn(StringBuilder log) {
+    private void processAiTurn(
+            StringBuilder log) {
         
-        if (!aiCompany
-            .getAvailableProjects()
-            .isEmpty()) {
-                
+        int maxProjects;
+        int maxBots;
+        int maxTools;
+        double aiSafetyCash;
+        
+        if (aiDifficulty.equals("EASY")) {
+            maxProjects = 1;
+            maxBots = 1;
+            maxTools = 1;
+            aiSafetyCash = 50000;
+        }
+        
+        else if (aiDifficulty.equals("HARD")) {
+            maxProjects = 3;
+            maxBots = 3;
+            maxTools = 3;
+            aiSafetyCash = 20000;
+        }
+        
+        else {
+            maxProjects = 2;
+            maxBots = 2;
+            maxTools = 2;
+            aiSafetyCash = 35000;
+        }
+        
+        if (aiCompany.getProjects().size()
+                < maxProjects
+                &&
+            !aiCompany
+                .getAvailableProjects()
+                .isEmpty()) {
+                    
             Project project =
                 aiCompany
                 .getAvailableProjects()
                 .get(0);
-                
+
             aiCompany.acceptProject(
                 project
             );
@@ -322,41 +357,111 @@ public class GameService {
             );
         }
         
+        if (aiCompany
+                .getFreelancerBots()
+                .size() < maxBots
+                &&
+            aiCompany.getCash()
+                > aiSafetyCash
+                &&
+            aiCompany.canAfford(
+                18000)) {
+                    
+            FreelancerBot bot =
+                new FreelancerBot(
+                    aiCompany.nextFreelancerBotName(),
+                    12
+                );
+                
+            aiCompany.addFreelancerBot(bot);
+            
+            aiCompany.spendBudget(18000);
+            
+            log.append(
+                "AI bought FreelancerBot<br>"
+            );
+        }
+        
+        if (aiCompany
+                .getAutomatedTools()
+                .size() < maxTools
+                &&
+            aiCompany.getCash()
+                > aiSafetyCash
+                &&
+            aiCompany.canAfford(
+                5000)) {
+                    
+            AutomatedTool tool =
+                new AutomatedTool(
+                    aiCompany.nextAutomatedToolName(),
+                    8
+                );
+                
+            aiCompany.addAutomatedTool(tool);
+            
+            aiCompany.spendBudget(5000);
+            
+            log.append(
+                "AI bought AutomatedTool<br>"
+            );
+        }
+        
         int productivity =
             aiCompany
             .calculateTotalProductivity();
             
         for (Project project
-            : aiCompany.getProjects()) {
-                
+                : aiCompany.getProjects()) {
+
             if (project.getStatus()
-                == ProjectStatus.PLANNED) {
-                
-                    project.start();
-                }
-                
+                    == ProjectStatus.PLANNED) {
+
+                project.start();
+            }
+            
             project.workOneTurn(
                 productivity
             );
-
-            if (!project.isRewardPaid()
-                && project.isFinished()) {
             
+            if (!project.isRewardPaid()
+                    && project.isFinished()) {
+
                 log.append(
                     "AI completed "
                     + project.getName()
                     + " (+"
-                    + (long) project.getReward()
+                    + (long)
+                    project.getReward()
                     + ")<br>"
                 );
             }
         }
-        aiCompany.collectProjectRewards();
         
+        aiCompany.collectProjectRewards();
         aiCompany.paySalaries();
+    }
+
+    public void setAiDifficulty(
+            String difficulty) {
+
+        if (gameStarted) {
+            return;
+        }
+        
+        aiDifficulty = difficulty;
+        gameStarted = true;
+    }
+
+    public String getAiDifficulty() {
+        return aiDifficulty;
     }
 
     public String getTurnLog() {
         return turnLog;
+    }
+
+    public boolean isGameStarted() {
+        return gameStarted;
     }
 }

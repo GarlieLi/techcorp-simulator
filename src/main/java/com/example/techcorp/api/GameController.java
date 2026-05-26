@@ -19,6 +19,21 @@ public class GameController {
         gameService = new GameService();
     }
 
+    @GetMapping("/game/difficulty/{difficulty}")
+    public Map<String, Object> setDifficulty(
+            @PathVariable("difficulty")
+            String difficulty)  {
+                
+        gameService.setAiDifficulty(
+            difficulty
+        );
+        
+        return Map.of(
+            "difficulty",
+            difficulty
+        );
+    }
+
     @GetMapping("/game/state")
     public Map<String, Object> gameState() {
         
@@ -36,8 +51,18 @@ public class GameController {
             ),
 
             Map.entry(
+                "gameStarted",
+                gameService.isGameStarted()
+            ),
+
+            Map.entry(
                 "turnLog",
                 gameService.getTurnLog()
+            ),
+
+            Map.entry(
+                "difficulty",
+                gameService.getAiDifficulty()
             ),
             
             Map.entry(
@@ -88,6 +113,26 @@ public class GameController {
             Map.entry(
                 "aiActiveProjects",
                 aiCompany.getProjects()
+            ),
+
+            Map.entry(
+                "totalSalaries",
+                company.calculateTotalSalaries()
+            ),
+
+            Map.entry(
+                "freelancerBots",
+                company.getFreelancerBots().size()
+            ),
+
+            Map.entry(
+                "automatedTools",
+                company.getAutomatedTools().size()
+            ),
+
+            Map.entry(
+                "activeProjectCount",
+                company.getProjects().size()
             )
         );
     }

@@ -76,7 +76,32 @@
 
     <h3 id="turnInfo"></h3>
 
-    <div id="mainLayout">
+    <div id="difficultyMenu">
+
+        <h2>Select AI Difficulty</h2>
+
+        <button onclick="
+            setDifficulty('EASY')
+        ">
+            Easy AI
+        </button>
+        
+        <button onclick="
+            setDifficulty('NORMAL')
+        ">
+            Normal AI
+        </button>
+
+        <button onclick="
+            setDifficulty('HARD')
+        ">
+            Hard AI
+        </button>
+    </div>
+    
+    <p id="difficulty"></p>
+
+    <div id="mainLayout" style="display:none;">
 
         <!-- LEFT PANEL -->
 
@@ -121,6 +146,14 @@
             <p id="employees"></p>
 
             <p id="productivity"></p>
+
+            <p id="salaries"></p>
+            
+            <p id="freelancerBots"></p>
+            
+            <p id="automatedTools"></p>
+            
+            <p id="projectCount"></p>
 
             <h2>Active Projects</h2>
 
@@ -192,6 +225,17 @@
             loadGameState();
         }
 
+        async function setDifficulty(
+            difficulty) {
+                
+            await fetch(
+                "/game/difficulty/"
+                + difficulty
+            );
+            
+            loadGameState();
+        }
+
         async function endTurn() {
             
             await fetch(
@@ -245,6 +289,16 @@
 
         function updateUI(data) {
 
+            if (data.gameStarted) {
+                document.getElementById(
+                    "difficultyMenu"
+                ).style.display = "none";
+                
+                document.getElementById(
+                    "mainLayout"
+                ).style.display = "flex";
+            }
+
             document.getElementById(
                 "turnInfo"
             ).textContent =
@@ -267,6 +321,30 @@
             ).textContent =
                 "Productivity: "
                 + data.productivity;
+
+            document.getElementById(
+                "salaries"
+            ).textContent =
+                "Salaries/Turn: "
+                + data.totalSalaries;
+
+            document.getElementById(
+                "freelancerBots"
+            ).textContent =
+                "FreelancerBots: "
+                + data.freelancerBots;
+
+            document.getElementById(
+                "automatedTools"
+            ).textContent =
+                "AutomatedTools: "
+                + data.automatedTools;
+
+            document.getElementById(
+                "projectCount"
+            ).textContent =
+                "Active Projects: "
+                + data.activeProjectCount;
 
             document.getElementById(
                 "aiCash"
