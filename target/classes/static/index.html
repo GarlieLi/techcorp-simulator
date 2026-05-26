@@ -14,7 +14,7 @@
             font-family: Arial;
             margin: 20px;
         }
-        
+
         button {
 
             padding: 10px;
@@ -24,15 +24,12 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+
+            min-width: 180px;
+            height: 70px;
+            font-size: 15px;
         }
 
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 420px;
-        }
-        
         button:hover {
 
             background-color: #2563eb;
@@ -45,95 +42,140 @@
             padding: 15px;
             margin-bottom: 15px;
         }
-        
+
         .project-card {
 
             border-left: 6px solid #3b82f6;
         }
-        
+
         .active-project {
 
             border-left: 6px solid #22c55e;
         }
 
-        #mainLayout {
+        #topBar {
+
             display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        #topControls {
+
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-buttons {
+
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #mainLayout {
+
+            display: none;
             gap: 30px;
             align-items: flex-start;
         }
-        
+
         .panel {
+
             width: 33%;
         }
-        
+
+        progress {
+
+            width: 100%;
+            height: 20px;
+        }
+
     </style>
 
 </head>
 
-<body style="
-    font-family: Arial;
-    margin: 20px;
-">
+<body>
 
-    <h1>TechCorp Simulator</h1>
+    <div id="topBar">
 
-    <h3 id="turnInfo"></h3>
+        <div>
 
-    <div id="difficultyMenu">
+            <h1>TechCorp Simulator</h1>
 
-        <h2>Select AI Difficulty</h2>
+            <h3 id="turnInfo"></h3>
 
-        <button onclick="
-            setDifficulty('EASY')
-        ">
-            Easy AI
-        </button>
-        
-        <button onclick="
-            setDifficulty('NORMAL')
-        ">
-            Normal AI
-        </button>
+        </div>
 
-        <button onclick="
-            setDifficulty('HARD')
-        ">
-            Hard AI
-        </button>
-    </div>
-    
-    <p id="difficulty"></p>
+        <div id="topControls">
 
-    <div id="mainLayout" style="display:none;">
+            <div id="difficultyMenu">
 
-        <!-- PLAYER PANEL -->
-
-        <div class="panel">
-
-            <div class="action-buttons">
-
-                <button onclick="hireIntern()">
-                    Hire Intern<br>
-                    +2 Prod | $1000 + $1000/turn
+                <button onclick="setDifficulty('EASY')">
+                    Easy AI
                 </button>
 
-                <button onclick="hireFreelancer()">
-                    Hire FreelancerBot<br>
-                    +4 Prod | $18000 one-time
+                <button onclick="setDifficulty('NORMAL')">
+                    Normal AI
                 </button>
 
-                <button onclick="buyAutomatedTool()">
-                    Buy AutomatedTool<br>
-                    +2 Prod | $5000 one-time
-                </button>
-
-                <button onclick="endTurn()">
-                    End Turn
+                <button onclick="setDifficulty('HARD')">
+                    Hard AI
                 </button>
 
             </div>
 
-            <hr>
+            <div
+                class="action-buttons"
+                id="actionButtons"
+            >
+
+                <button onclick="hireIntern()">
+
+                    Hire Intern<br>
+
+                    +2 Prod | $1000 + $1000/turn
+
+                </button>
+
+                <button onclick="hireFreelancer()">
+
+                    Hire FreelancerBot<br>
+
+                    +4 Prod | $18000 one-time
+
+                </button>
+
+                <button onclick="buyTool()">
+
+                    Buy AutomatedTool<br>
+
+                    +2 Prod | $5000 one-time
+
+                </button>
+
+                <button onclick="endTurn()">
+
+                    End Turn
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="mainLayout">
+
+        <!-- PLAYER PANEL -->
+
+        <div class="panel">
 
             <h2>Company Status</h2>
 
@@ -144,11 +186,11 @@
             <p id="productivity"></p>
 
             <p id="salaries"></p>
-            
+
             <p id="freelancerBots"></p>
-            
+
             <p id="automatedTools"></p>
-            
+
             <p id="projectCount"></p>
 
             <h2>Active Projects</h2>
@@ -166,28 +208,29 @@
         <div class="panel">
 
             <div id="resultBox"></div>
-            
+
             <h2 id="projectsTitle">
                 Available Projects
             </h2>
-            
+
             <div id="projects"></div>
 
         </div>
 
         <!-- AI PANEL -->
+
         <div class="panel">
-            
+
             <h2>AI Status</h2>
-            
+
             <p id="aiCash"></p>
-            
+
             <p id="aiProductivity"></p>
-            
+
             <p id="aiProjects"></p>
-            
+
             <h2>AI Active Projects</h2>
-            
+
             <div id="aiActiveProjects"></div>
 
             <h2>AI Finished Projects</h2>
@@ -195,9 +238,12 @@
             <div id="aiFinishedProjects"></div>
 
             <h2>Game Log</h2>
-            
-            <div id="gameLog" class="card"></div>
-        
+
+            <div
+                id="gameLog"
+                class="card"
+            ></div>
+
         </div>
 
     </div>
@@ -215,24 +261,12 @@
             updateUI(data);
         }
 
-        function addLog(message) {
-            
-            const logDiv =
-                document.getElementById(
-                "gameLog"
-            );
-            
-            logDiv.innerHTML =
-                `<p>${message}</p>`
-                + logDiv.innerHTML;
-        }
-
         async function hireIntern() {
-            
+
             await fetch(
                 "/game/hire/intern"
             );
-            
+
             loadGameState();
         }
 
@@ -255,101 +289,129 @@
         }
 
         async function setDifficulty(
-            difficulty) {
-                
+            difficulty
+        ) {
+
             await fetch(
                 "/game/difficulty/"
                 + difficulty
             );
-            
+
             loadGameState();
         }
 
         async function endTurn() {
-            
+
             await fetch(
                 "/game/endTurn"
             );
-            
+
             loadGameState();
         }
 
         async function acceptProject(
-            projectName) {
-                
+            projectName
+        ) {
+
             await fetch(
                 "/game/accept/"
                 + encodeURIComponent(
-                    projectName)
+                    projectName
+                )
             );
-            
+
             loadGameState();
         }
 
-        async function holdProject(projectName) {
-            
-            const response =
-                await fetch(
+        async function holdProject(
+            projectName
+        ) {
+
+            await fetch(
                 "/game/hold/"
                 + encodeURIComponent(
-                projectName)
+                    projectName
+                )
             );
-            
-            const data =
-                await response.json();
-            
+
             loadGameState();
         }
-        
-        async function resumeProject(projectName) {
-            
-            const response =
-                await fetch(
+
+        async function resumeProject(
+            projectName
+        ) {
+
+            await fetch(
                 "/game/resume/"
                 + encodeURIComponent(
-                projectName)
+                    projectName
+                )
             );
-            
-            const data =
-                await response.json();
-            
+
             loadGameState();
         }
 
         async function cancelProject(
-            projectName) {
-            
+            projectName
+        ) {
+
             await fetch(
                 "/game/cancel/"
                 + encodeURIComponent(
                     projectName
-            )
-        );
-        loadGameState();
-    }
+                )
+            );
+
+            loadGameState();
+        }
 
         function updateUI(data) {
 
             if (data.gameStarted) {
-                document.getElementById(
-                    "difficultyMenu"
-                ).style.display = "none";
-                
+
                 document.getElementById(
                     "mainLayout"
                 ).style.display = "flex";
+
+                document.getElementById(
+                    "difficultyMenu"
+                ).style.display = "none";
+
+                document.getElementById(
+                    "actionButtons"
+                ).style.display = "flex";
+
+                document.getElementById(
+                    "turnInfo"
+                ).textContent =
+                    "Turn: "
+                    + data.turn;
             }
 
-            document.getElementById(
-                "turnInfo"
-            ).textContent =
-                "Turn: "
-                + data.turn;
+            else {
+
+                document.getElementById(
+                    "mainLayout"
+                ).style.display = "none";
+
+                document.getElementById(
+                    "difficultyMenu"
+                ).style.display = "flex";
+
+                document.getElementById(
+                    "actionButtons"
+                ).style.display = "none";
+
+                document.getElementById(
+                    "turnInfo"
+                ).textContent = "";
+            }
 
             document.getElementById(
                 "cash"
             ).textContent =
-                "Cash: " + data.cash;
+                "Cash: "
+                + data.cash;
 
             document.getElementById(
                 "employees"
@@ -392,13 +454,13 @@
             ).textContent =
                 "AI Cash: "
                 + data.aiCash;
-                
+
             document.getElementById(
                 "aiProductivity"
             ).textContent =
                 "AI Productivity: "
                 + data.aiProductivity;
-                
+
             document.getElementById(
                 "aiProjects"
             ).textContent =
@@ -410,8 +472,8 @@
             ).innerHTML =
                 data.turnLog;
 
-            /* ACTIVE PROJECTS */
-            
+            /* PLAYER PROJECTS */
+
             const activeProjectsDiv =
                 document.getElementById(
                     "activeProjects"
@@ -421,35 +483,13 @@
                 document.getElementById(
                     "finishedProjects"
                 );
-                
+
             activeProjectsDiv.innerHTML = "";
             finishedProjectsDiv.innerHTML = "";
-            
-            const sortedProjects =
-                [...data.activeProjects]
-                .sort((a, b) => {
-                    
-                    if (
-                        a.status === "FINISHED"
-                        &&
-                        b.status !== "FINISHED"
-                    ) {
-                        return 1;
-                    }
-                    
-                    if (
-                        a.status !== "FINISHED"
-                        &&
-                        b.status === "FINISHED"
-                    ) {
-                        return -1;
-                    }
-                    return 0;
-                });
-                
+
             for (const project
-                of sortedProjects) {
-                    
+                of data.activeProjects) {
+
                 const projectHtml = `
                     <div class="
                         card
@@ -461,20 +501,23 @@
                             "active-project"
                         }
                     ">
-                        <h3>${project.name}</h3>
-                        
+
+                        <h3>
+                            ${project.name}
+                        </h3>
+
                         <p>
                             Progress:
                             ${project.progress}
                             /
                             ${project.requiredWork}
                         </p>
-                        
+
                         <progress
                             value="${project.progress}"
                             max="${project.requiredWork}">
                         </progress>
-                        
+
                         ${
                             project.status !== "FINISHED"
                             ?
@@ -483,7 +526,7 @@
                                 Status:
                                 ${project.status}
                             </p>
-                            
+
                             <p>
                                 Reward:
                                 ${project.reward}
@@ -492,7 +535,7 @@
                             :
                             ""
                         }
-                        
+
                         ${
                             project.status === "IN_PROGRESS"
                             ?
@@ -509,7 +552,7 @@
                             :
                             ""
                         }
-                            
+
                         ${
                             project.status === "ON_HOLD"
                             ?
@@ -543,24 +586,25 @@
                             :
                             ""
                         }
-                    
+
                     </div>
                 `;
-                
+
                 if (
                     project.status === "FINISHED"
                 ) {
+
                     finishedProjectsDiv.innerHTML
                         += projectHtml;
                 }
-                
+
                 else {
-                    
+
                     activeProjectsDiv.innerHTML
                         += projectHtml;
                 }
             }
-            
+
             /* AVAILABLE PROJECTS */
 
             const projectsDiv =
@@ -572,7 +616,7 @@
                 document.getElementById(
                     "resultBox"
                 );
-                
+
             const projectsTitle =
                 document.getElementById(
                     "projectsTitle"
@@ -582,48 +626,56 @@
             resultBox.innerHTML = "";
 
             if (data.gameOver) {
+
                 projectsTitle.textContent =
                     "Game Result";
-                    
+
                 resultBox.innerHTML = `
                     <div class="
-                    card
-                    project-card
-                ">
-                
-                    <h1>
-                        ${data.winner}
-                    </h1>
-                    
-                    <p>
-                        Final Cash:
-                        ${data.cash}
-                    </p>
-                    
-                    <p>
-                        AI Cash:
-                        ${data.aiCash}
-                    </p>
-                    
-                    <p>
-                        Total Turns:
-                        ${data.turn}
-                    </p>
-                </div>
-            `;
-            return;
-        }
-        
-        projectsTitle.textContent =
-            "Available Projects";
+                        card
+                        project-card
+                    ">
+
+                        <h1>
+                            ${data.winner}
+                        </h1>
+
+                        <p>
+                            Final Cash:
+                            ${data.cash}
+                        </p>
+
+                        <p>
+                            AI Cash:
+                            ${data.aiCash}
+                        </p>
+
+                        <p>
+                            Total Turns:
+                            ${data.turn}
+                        </p>
+
+                    </div>
+                `;
+
+                return;
+            }
+
+            projectsTitle.textContent =
+                "Available Projects";
 
             for (const project
-                    of data.availableProjects) {
+                of data.availableProjects) {
 
                 projectsDiv.innerHTML += `
-                    <div class="card project-card">
+                    <div class="
+                        card
+                        project-card
+                    ">
 
-                        <h3>${project.name}</h3>
+                        <h3>
+                            ${project.name}
+                        </h3>
 
                         <p>
                             Work:
@@ -641,20 +693,20 @@
                                     '${project.name}'
                                 )
                             ">
-
                             Accept Project
-
                         </button>
 
                     </div>
                 `;
             }
 
+            /* AI PROJECTS */
+
             const aiProjectsDiv =
                 document.getElementById(
                     "aiActiveProjects"
                 );
-                
+
             const aiFinishedProjectsDiv =
                 document.getElementById(
                     "aiFinishedProjects"
@@ -662,10 +714,10 @@
 
             aiProjectsDiv.innerHTML = "";
             aiFinishedProjectsDiv.innerHTML = "";
-            
+
             for (const project
                 of data.aiActiveProjects) {
-                    
+
                 const aiProjectHtml = `
                     <div class="
                         card
@@ -677,37 +729,36 @@
                             "active-project"
                         }
                     ">
-                    
+
                         <h3>
                             ${project.name}
                         </h3>
-                        
+
                         <p>
                             Progress:
                             ${project.progress}
                             /
                             ${project.requiredWork}
                         </p>
-                        
+
                         <progress
                             value="${project.progress}"
-                            max="${project.requiredWork}"
-                            style="
-                                width:100%;
-                                height:20px;
-                            ">
+                            max="${project.requiredWork}">
                         </progress>
+
                     </div>
                 `;
-                
+
                 if (
                     project.status === "FINISHED"
                 ) {
+
                     aiFinishedProjectsDiv.innerHTML
                         += aiProjectHtml;
-                    }
-                    
+                }
+
                 else {
+
                     aiProjectsDiv.innerHTML
                         += aiProjectHtml;
                 }
