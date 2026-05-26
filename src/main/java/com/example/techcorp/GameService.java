@@ -350,6 +350,34 @@ public class GameService {
         return "Project not found.";
     }
 
+    public String cancelProject(
+            String projectName) {
+                
+        for (Project project
+                : company.getProjects()) {
+                    
+            if (
+                project.getName()
+                    .equals(projectName)
+                &&
+                project.getStatus()
+                    == ProjectStatus.PLANNED
+            ) {
+
+                company.getProjects()
+                    .remove(project);
+
+                company
+                    .getAvailableProjects()
+                    .add(project);
+
+                return projectName
+                    + " cancelled.";
+            }
+        }
+        return "Project cannot be cancelled.";
+    }
+
     public Company getAiCompany() {
         return aiCompany;
     }
@@ -557,7 +585,7 @@ public class GameService {
         return bestProject;
     }
 
-    private int countActiveProjects(
+    public int countActiveProjects(
             Company targetCompany) {
 
         int count = 0;

@@ -25,6 +25,13 @@
             border-radius: 6px;
             cursor: pointer;
         }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 420px;
+        }
         
         button:hover {
 
@@ -55,12 +62,8 @@
             align-items: flex-start;
         }
         
-        #leftPanel {
-            width: 38%;
-        }
-        
-        #rightPanel {
-            width: 62%;
+        .panel {
+            width: 33%;
         }
         
     </style>
@@ -103,43 +106,36 @@
 
     <div id="mainLayout" style="display:none;">
 
-        <!-- LEFT PANEL -->
+        <!-- PLAYER PANEL -->
 
-        <div id="leftPanel">
+        <div class="panel">
 
-            <button onclick="hireIntern()">
-                Hire Intern
-            </button>
+            <div class="action-buttons">
 
-            <button onclick="hireFreelancer()">
-                Hire FreelancerBot
-            </button>
+                <button onclick="hireIntern()">
+                    Hire Intern<br>
+                    +2 Prod | $1000 + $1000/turn
+                </button>
 
-            <button onclick="buyTool()">
-                Buy Tool
-            </button>
+                <button onclick="hireFreelancer()">
+                    Hire FreelancerBot<br>
+                    +4 Prod | $18000 one-time
+                </button>
 
-            <button onclick="endTurn()">
-                End Turn
-            </button>
+                <button onclick="buyAutomatedTool()">
+                    Buy AutomatedTool<br>
+                    +2 Prod | $5000 one-time
+                </button>
+
+                <button onclick="endTurn()">
+                    End Turn
+                </button>
+
+            </div>
 
             <hr>
 
             <h2>Company Status</h2>
-
-            <h2>AI Status</h2>
-            
-            <p id="aiCash"></p>
-            
-            <p id="aiProductivity"></p>
-            
-            <p id="aiProjects"></p>
-
-            <div id="aiActiveProjects"></div>
-
-            <h2>Game Log</h2>
-            
-            <div id="gameLog" class="card"></div>
 
             <p id="cash"></p>
 
@@ -159,16 +155,49 @@
 
             <div id="activeProjects"></div>
 
+            <h2>Finished Projects</h2>
+
+            <div id="finishedProjects"></div>
+
         </div>
 
-        <!-- RIGHT PANEL -->
+        <!-- PROJECTS PANEL -->
 
-        <div id="rightPanel">
+        <div class="panel">
 
-            <h2>Available Projects</h2>
-
+            <div id="resultBox"></div>
+            
+            <h2 id="projectsTitle">
+                Available Projects
+            </h2>
+            
             <div id="projects"></div>
 
+        </div>
+
+        <!-- AI PANEL -->
+        <div class="panel">
+            
+            <h2>AI Status</h2>
+            
+            <p id="aiCash"></p>
+            
+            <p id="aiProductivity"></p>
+            
+            <p id="aiProjects"></p>
+            
+            <h2>AI Active Projects</h2>
+            
+            <div id="aiActiveProjects"></div>
+
+            <h2>AI Finished Projects</h2>
+
+            <div id="aiFinishedProjects"></div>
+
+            <h2>Game Log</h2>
+            
+            <div id="gameLog" class="card"></div>
+        
         </div>
 
     </div>
@@ -287,6 +316,18 @@
             loadGameState();
         }
 
+        async function cancelProject(
+            projectName) {
+            
+            await fetch(
+                "/game/cancel/"
+                + encodeURIComponent(
+                    projectName
+            )
+        );
+        loadGameState();
+    }
+
         function updateUI(data) {
 
             if (data.gameStarted) {
@@ -375,18 +416,52 @@
                 document.getElementById(
                     "activeProjects"
                 );
+
+            const finishedProjectsDiv =
+                document.getElementById(
+                    "finishedProjects"
+                );
                 
             activeProjectsDiv.innerHTML = "";
+            finishedProjectsDiv.innerHTML = "";
             
-            for (const project
-                of data.activeProjects) {
+            const sortedProjects =
+                [...data.activeProjects]
+                .sort((a, b) => {
                     
-                activeProjectsDiv.innerHTML += `
-                    <div class="card active-project">
-                        
-                        <h3>
-                            ${project.name}
-                        </h3>
+                    if (
+                        a.status === "FINISHED"
+                        &&
+                        b.status !== "FINISHED"
+                    ) {
+                        return 1;
+                    }
+                    
+                    if (
+                        a.status !== "FINISHED"
+                        &&
+                        b.status === "FINISHED"
+                    ) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                
+            for (const project
+                of sortedProjects) {
+                    
+                const projectHtml = `
+                    <div class="
+                        card
+                        ${
+                            project.status === "FINISHED"
+                            ?
+                            "project-card"
+                            :
+                            "active-project"
+                        }
+                    ">
+                        <h3>${project.name}</h3>
                         
                         <p>
                             Progress:
@@ -397,39 +472,95 @@
                         
                         <progress
                             value="${project.progress}"
-                            max="${project.requiredWork}"
-                            style="
-                            width:100%;
-                            height:25px;
-                            ">
+                            max="${project.requiredWork}">
                         </progress>
                         
-                        <p>
-                            Status:
-                            ${project.status}
-                        </p>
+                        ${
+                            project.status !== "FINISHED"
+                            ?
+                            `
+                            <p>
+                                Status:
+                                ${project.status}
+                            </p>
+                            
+                            <p>
+                                Reward:
+                                ${project.reward}
+                            </p>
+                            `
+                            :
+                            ""
+                        }
                         
-                        <p>
-                            Reward:
-                            ${project.reward}
-                        </p>
-                        
-                        <div style="
-                            margin-top:10px;
-                        ">
-                        
-                            <button onclick="holdProject('${project.name}')">
+                        ${
+                            project.status === "IN_PROGRESS"
+                            ?
+                            `
+                            <button
+                                onclick="
+                                    holdProject(
+                                        '${project.name}'
+                                    )
+                                ">
                                 Hold
                             </button>
+                            `
+                            :
+                            ""
+                        }
                             
-                            <button onclick="resumeProject('${project.name}')">
+                        ${
+                            project.status === "ON_HOLD"
+                            ?
+                            `
+                            <button
+                                onclick="
+                                    resumeProject(
+                                        '${project.name}'
+                                    )
+                                ">
                                 Resume
                             </button>
-                        </div>
+                            `
+                            :
+                            ""
+                        }
+
+                        ${
+                            project.status === "PLANNED"
+                            ?
+                            `
+                            <button
+                                onclick="
+                                    cancelProject(
+                                        '${project.name}'
+                                    )
+                                ">
+                                Cancel
+                            </button>
+                            `
+                            :
+                            ""
+                        }
+                    
                     </div>
                 `;
+                
+                if (
+                    project.status === "FINISHED"
+                ) {
+                    finishedProjectsDiv.innerHTML
+                        += projectHtml;
+                }
+                
+                else {
+                    
+                    activeProjectsDiv.innerHTML
+                        += projectHtml;
+                }
             }
-
+            
             /* AVAILABLE PROJECTS */
 
             const projectsDiv =
@@ -437,7 +568,54 @@
                     "projects"
                 );
 
+            const resultBox =
+                document.getElementById(
+                    "resultBox"
+                );
+                
+            const projectsTitle =
+                document.getElementById(
+                    "projectsTitle"
+                );
+
             projectsDiv.innerHTML = "";
+            resultBox.innerHTML = "";
+
+            if (data.gameOver) {
+                projectsTitle.textContent =
+                    "Game Result";
+                    
+                resultBox.innerHTML = `
+                    <div class="
+                    card
+                    project-card
+                ">
+                
+                    <h1>
+                        ${data.winner}
+                    </h1>
+                    
+                    <p>
+                        Final Cash:
+                        ${data.cash}
+                    </p>
+                    
+                    <p>
+                        AI Cash:
+                        ${data.aiCash}
+                    </p>
+                    
+                    <p>
+                        Total Turns:
+                        ${data.turn}
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        projectsTitle.textContent =
+            "Available Projects";
 
             for (const project
                     of data.availableProjects) {
@@ -477,14 +655,29 @@
                     "aiActiveProjects"
                 );
                 
+            const aiFinishedProjectsDiv =
+                document.getElementById(
+                    "aiFinishedProjects"
+                );
+
             aiProjectsDiv.innerHTML = "";
+            aiFinishedProjectsDiv.innerHTML = "";
             
             for (const project
                 of data.aiActiveProjects) {
                     
-                aiProjectsDiv.innerHTML += `
-                
-                    <div class="card">
+                const aiProjectHtml = `
+                    <div class="
+                        card
+                        ${
+                            project.status === "FINISHED"
+                            ?
+                            "project-card"
+                            :
+                            "active-project"
+                        }
+                    ">
+                    
                         <h3>
                             ${project.name}
                         </h3>
@@ -506,6 +699,18 @@
                         </progress>
                     </div>
                 `;
+                
+                if (
+                    project.status === "FINISHED"
+                ) {
+                    aiFinishedProjectsDiv.innerHTML
+                        += aiProjectHtml;
+                    }
+                    
+                else {
+                    aiProjectsDiv.innerHTML
+                        += aiProjectHtml;
+                }
             }
         }
 

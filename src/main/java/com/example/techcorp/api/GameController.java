@@ -107,7 +107,8 @@ public class GameController {
             
             Map.entry(
                 "aiProjects",
-                aiCompany.getProjects().size()
+                gameService.countActiveProjects(
+                    aiCompany)
             ),
             
             Map.entry(
@@ -132,7 +133,7 @@ public class GameController {
 
             Map.entry(
                 "activeProjectCount",
-                company.getProjects().size()
+                gameService.countActiveProjects(company)
             ),
 
             Map.entry(
@@ -195,6 +196,22 @@ public class GameController {
                 projectName
             );
             
+        return Map.of(
+            "message",
+            result
+        );
+    }
+
+    @GetMapping("/game/cancel/{projectName}")
+    public Map<String, Object> cancelProject(
+            @PathVariable("projectName")
+            String projectName) {
+
+        String result =
+            gameService.cancelProject(
+                projectName
+            );
+
         return Map.of(
             "message",
             result
