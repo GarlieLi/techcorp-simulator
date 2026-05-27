@@ -8,92 +8,74 @@
     <style>
 
         body {
-
             background-color: #1e1e1e;
             color: white;
             font-family: Arial;
             margin: 20px;
         }
 
-        button {
+        h1, h2, h3 {
+            margin-top: 0;
+        }
 
-            padding: 10px;
-            margin: 5px;
-            background-color: #3b82f6;
+        button {
+            padding: 14px 18px;
+            background-color: #5b7ce3;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-
-            min-width: 180px;
-            height: 70px;
+            min-width: 220px;
             font-size: 15px;
         }
 
         button:hover {
+            background-color: #4c6fd6;
+        }
 
-            background-color: #2563eb;
+        .top-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .card {
-
             background-color: #2a2a2a;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
         }
 
         .project-card {
-
-            border-left: 6px solid #3b82f6;
+            border-left: 6px solid #5b7ce3;
         }
 
         .active-project {
-
-            border-left: 6px solid #22c55e;
+            border-left: 6px solid #6ee56e;
         }
 
         #topBar {
-
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 30px;
-        }
-
-        #topControls {
-
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .action-buttons {
-
-            display: flex;
-            flex-direction: row;
-            gap: 12px;
-            flex-wrap: wrap;
+            margin-bottom: 35px;
         }
 
         #mainLayout {
-
-            display: none;
-            gap: 30px;
+            display: flex;
+            gap: 35px;
             align-items: flex-start;
         }
 
         .panel {
-
             width: 33%;
         }
 
         progress {
-
             width: 100%;
             height: 20px;
+            margin-top: 10px;
+            margin-bottom: 15px;
         }
 
     </style>
@@ -108,13 +90,13 @@
 
             <h1>TechCorp Simulator</h1>
 
-            <h3 id="turnInfo"></h3>
+            <h2 id="turnInfo"></h2>
 
         </div>
 
-        <div id="topControls">
+        <div>
 
-            <div id="difficultyMenu">
+            <div id="difficultyMenu" class="top-buttons">
 
                 <button onclick="setDifficulty('EASY')">
                     Easy AI
@@ -131,38 +113,28 @@
             </div>
 
             <div
-                class="action-buttons"
                 id="actionButtons"
+                class="top-buttons"
+                style="display:none;"
             >
 
                 <button onclick="hireIntern()">
-
                     Hire Intern<br>
-
                     +2 Prod | $1000 + $1000/turn
-
                 </button>
 
                 <button onclick="hireFreelancer()">
-
                     Hire FreelancerBot<br>
-
                     +4 Prod | $18000 one-time
-
                 </button>
 
                 <button onclick="buyTool()">
-
                     Buy AutomatedTool<br>
-
                     +2 Prod | $5000 one-time
-
                 </button>
 
                 <button onclick="endTurn()">
-
                     End Turn
-
                 </button>
 
             </div>
@@ -171,7 +143,10 @@
 
     </div>
 
-    <div id="mainLayout">
+    <div
+        id="mainLayout"
+        style="display:none;"
+    >
 
         <!-- PLAYER PANEL -->
 
@@ -180,17 +155,11 @@
             <h2>Company Status</h2>
 
             <p id="cash"></p>
-
             <p id="employees"></p>
-
             <p id="productivity"></p>
-
             <p id="salaries"></p>
-
             <p id="freelancerBots"></p>
-
             <p id="automatedTools"></p>
-
             <p id="projectCount"></p>
 
             <h2>Active Projects</h2>
@@ -203,7 +172,7 @@
 
         </div>
 
-        <!-- PROJECTS PANEL -->
+        <!-- CENTER PANEL -->
 
         <div class="panel">
 
@@ -224,9 +193,7 @@
             <h2>AI Status</h2>
 
             <p id="aiCash"></p>
-
             <p id="aiProductivity"></p>
-
             <p id="aiProjects"></p>
 
             <h2>AI Active Projects</h2>
@@ -263,27 +230,28 @@
 
         async function hireIntern() {
 
-            await fetch(
-                "/game/hire/intern"
-            );
+            await fetch("/game/hire/intern");
 
             loadGameState();
         }
 
         async function hireFreelancer() {
 
-            await fetch(
-                "/game/hire/freelancer"
-            );
+            await fetch("/game/hire/freelancer");
 
             loadGameState();
         }
 
         async function buyTool() {
 
-            await fetch(
-                "/game/buy/tool"
-            );
+            await fetch("/game/buy/tool");
+
+            loadGameState();
+        }
+
+        async function endTurn() {
+
+            await fetch("/game/endTurn");
 
             loadGameState();
         }
@@ -295,15 +263,6 @@
             await fetch(
                 "/game/difficulty/"
                 + difficulty
-            );
-
-            loadGameState();
-        }
-
-        async function endTurn() {
-
-            await fetch(
-                "/game/endTurn"
             );
 
             loadGameState();
@@ -367,40 +326,54 @@
 
         function updateUI(data) {
 
-            if (data.gameStarted) {
-
-                document.getElementById(
-                    "mainLayout"
-                ).style.display = "flex";
-
+            const difficultyMenu =
                 document.getElementById(
                     "difficultyMenu"
-                ).style.display = "none";
+                );
 
+            const actionButtons =
                 document.getElementById(
                     "actionButtons"
-                ).style.display = "flex";
+                );
+
+            const mainLayout =
+                document.getElementById(
+                    "mainLayout"
+                );
+
+            const projectsTitle =
+                document.getElementById(
+                    "projectsTitle"
+                );
+
+            const resultBox =
+                document.getElementById(
+                    "resultBox"
+                );
+
+            const projectsDiv =
+                document.getElementById(
+                    "projects"
+                );
+
+            if (data.gameStarted) {
+
+                difficultyMenu.style.display =
+                    "none";
+
+                actionButtons.style.display =
+                    "flex";
+
+                mainLayout.style.display =
+                    "flex";
 
                 document.getElementById(
                     "turnInfo"
                 ).textContent =
-                    "Turn: "
-                    + data.turn;
+                    "Turn: " + data.turn;
             }
 
             else {
-
-                document.getElementById(
-                    "mainLayout"
-                ).style.display = "none";
-
-                document.getElementById(
-                    "difficultyMenu"
-                ).style.display = "flex";
-
-                document.getElementById(
-                    "actionButtons"
-                ).style.display = "none";
 
                 document.getElementById(
                     "turnInfo"
@@ -410,8 +383,7 @@
             document.getElementById(
                 "cash"
             ).textContent =
-                "Cash: "
-                + data.cash;
+                "Cash: " + data.cash;
 
             document.getElementById(
                 "employees"
@@ -472,8 +444,6 @@
             ).innerHTML =
                 data.turnLog;
 
-            /* PLAYER PROJECTS */
-
             const activeProjectsDiv =
                 document.getElementById(
                     "activeProjects"
@@ -487,10 +457,10 @@
             activeProjectsDiv.innerHTML = "";
             finishedProjectsDiv.innerHTML = "";
 
-            for (const project
-                of data.activeProjects) {
+            for (const project of data.activeProjects) {
 
                 const projectHtml = `
+
                     <div class="
                         card
                         ${
@@ -540,12 +510,11 @@
                             project.status === "IN_PROGRESS"
                             ?
                             `
-                            <button
-                                onclick="
-                                    holdProject(
-                                        '${project.name}'
-                                    )
-                                ">
+                            <button onclick="
+                                holdProject(
+                                    '${project.name}'
+                                )
+                            ">
                                 Hold
                             </button>
                             `
@@ -557,12 +526,11 @@
                             project.status === "ON_HOLD"
                             ?
                             `
-                            <button
-                                onclick="
-                                    resumeProject(
-                                        '${project.name}'
-                                    )
-                                ">
+                            <button onclick="
+                                resumeProject(
+                                    '${project.name}'
+                                )
+                            ">
                                 Resume
                             </button>
                             `
@@ -574,12 +542,11 @@
                             project.status === "PLANNED"
                             ?
                             `
-                            <button
-                                onclick="
-                                    cancelProject(
-                                        '${project.name}'
-                                    )
-                                ">
+                            <button onclick="
+                                cancelProject(
+                                    '${project.name}'
+                                )
+                            ">
                                 Cancel
                             </button>
                             `
@@ -605,69 +572,180 @@
                 }
             }
 
-            /* AVAILABLE PROJECTS */
-
-            const projectsDiv =
-                document.getElementById(
-                    "projects"
-                );
-
-            const resultBox =
-                document.getElementById(
-                    "resultBox"
-                );
-
-            const projectsTitle =
-                document.getElementById(
-                    "projectsTitle"
-                );
-
-            projectsDiv.innerHTML = "";
-            resultBox.innerHTML = "";
-
             if (data.gameOver) {
 
-                projectsTitle.textContent =
-                    "Game Result";
+                actionButtons.style.display =
+                    "none";
+
+                projectsTitle.style.display =
+                    "none";
 
                 resultBox.innerHTML = `
+
                     <div class="
                         card
                         project-card
+                    "
+                    style="
+                        text-align:center;
+                        padding:40px;
                     ">
 
-                        <h1>
-                            ${data.winner}
+                        <h1 style="
+                            font-size:56px;
+                            margin-bottom:20px;
+                        ">
+
+                            ${
+                                data.winner === "PLAYER WINS"
+                                ?
+                                "🏆 PLAYER WINS"
+                                :
+                                data.winner === "AI WINS"
+                                ?
+                                "🤖 AI WINS"
+                                :
+                                "🤝 DRAW"
+                            }
+
                         </h1>
 
-                        <p>
-                            Final Cash:
-                            ${data.cash}
+                        <p style="
+                            font-size:20px;
+                            color:#9ca3af;
+                            margin-bottom:40px;
+                        ">
+
+                            TechCorp Simulation Complete
+
                         </p>
 
-                        <p>
-                            AI Cash:
-                            ${data.aiCash}
-                        </p>
+                        <div style="
+                            display:flex;
+                            justify-content:center;
+                            gap:25px;
+                            flex-wrap:wrap;
+                        ">
 
-                        <p>
-                            Total Turns:
-                            ${data.turn}
-                        </p>
+                            <div class="card"
+                                style="
+                                    width:220px;
+                                    background:#1f2937;
+                                ">
+
+                                <h3>
+                                    💰 Final Cash
+                                </h3>
+
+                                <p style="
+                                    font-size:34px;
+                                    color:#22c55e;
+                                    font-weight:bold;
+                                ">
+
+                                    $${data.cash}
+
+                                </p>
+
+                            </div>
+
+                            <div class="card"
+                                style="
+                                    width:220px;
+                                    background:#1f2937;
+                                ">
+
+                                <h3>
+                                    ⚡ Productivity
+                                </h3>
+
+                                <p style="
+                                    font-size:34px;
+                                    color:#60a5fa;
+                                    font-weight:bold;
+                                ">
+
+                                    ${data.productivity}
+
+                                </p>
+
+                            </div>
+
+                            <div class="card"
+                                style="
+                                    width:220px;
+                                    background:#1f2937;
+                                ">
+
+                                <h3>
+                                    📈 Total Turns
+                                </h3>
+
+                                <p style="
+                                    font-size:34px;
+                                    color:#facc15;
+                                    font-weight:bold;
+                                ">
+
+                                    ${data.turn}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div style="
+                            margin-top:45px;
+                        ">
+
+                            <h2>
+                                🤖 AI Final Stats
+                            </h2>
+
+                            <p style="
+                                font-size:18px;
+                            ">
+
+                                AI Cash:
+                                $${data.aiCash}
+
+                            </p>
+
+                            <p style="
+                                font-size:18px;
+                            ">
+
+                                AI Productivity:
+                                ${data.aiProductivity}
+
+                            </p>
+
+                        </div>
 
                     </div>
                 `;
 
+                projectsDiv.innerHTML = "";
+
                 return;
             }
 
+            projectsTitle.style.display =
+                "block";
+
             projectsTitle.textContent =
                 "Available Projects";
+
+            resultBox.innerHTML = "";
+
+            projectsDiv.innerHTML = "";
 
             for (const project
                 of data.availableProjects) {
 
                 projectsDiv.innerHTML += `
+
                     <div class="
                         card
                         project-card
@@ -687,20 +765,19 @@
                             ${project.reward}
                         </p>
 
-                        <button
-                            onclick="
-                                acceptProject(
-                                    '${project.name}'
-                                )
-                            ">
+                        <button onclick="
+                            acceptProject(
+                                '${project.name}'
+                            )
+                        ">
+
                             Accept Project
+
                         </button>
 
                     </div>
                 `;
             }
-
-            /* AI PROJECTS */
 
             const aiProjectsDiv =
                 document.getElementById(
@@ -719,6 +796,7 @@
                 of data.aiActiveProjects) {
 
                 const aiProjectHtml = `
+
                     <div class="
                         card
                         ${
