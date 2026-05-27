@@ -581,21 +581,24 @@
                     "none";
 
                 resultBox.innerHTML = `
-
+                
                     <div class="
                         card
                         project-card
                     "
+                    
                     style="
                         text-align:center;
-                        padding:40px;
+                        padding:30px;
+                        max-width:700px;
+                        margin:auto;
                     ">
-
+                    
                         <h1 style="
-                            font-size:56px;
-                            margin-bottom:20px;
+                            font-size:52px;
+                            margin-bottom:10px;
                         ">
-
+                            
                             ${
                                 data.winner === "PLAYER WINS"
                                 ?
@@ -607,122 +610,104 @@
                                 :
                                 "🤝 DRAW"
                             }
-
+                        
                         </h1>
-
+                        
                         <p style="
-                            font-size:20px;
+                            font-size:18px;
                             color:#9ca3af;
-                            margin-bottom:40px;
+                            margin-bottom:30px;
                         ">
-
                             TechCorp Simulation Complete
-
                         </p>
-
+                        
                         <div style="
                             display:flex;
-                            justify-content:center;
-                            gap:25px;
-                            flex-wrap:wrap;
+                            flex-direction:column;
+                            gap:18px;
+                            margin-top:20px;
                         ">
-
+                        
                             <div class="card"
                                 style="
-                                    width:220px;
-                                    background:#1f2937;
+                                    background:#1e293b;
+                                    padding:20px;
                                 ">
-
+                                
                                 <h3>
                                     💰 Final Cash
                                 </h3>
-
-                                <p style="
-                                    font-size:34px;
-                                    color:#22c55e;
-                                    font-weight:bold;
-                                ">
-
-                                    $${data.cash}
-
+                                
+                                <p>
+                                    Player:
+                                    <span style="
+                                        color:#22c55e;
+                                        font-weight:bold;
+                                    ">
+                                        $${data.cash}
+                                    </span>
                                 </p>
-
+                                
+                                <p>
+                                    AI:
+                                    <span style="
+                                        color:#60a5fa;
+                                        font-weight:bold;
+                                    ">
+                                        $${data.aiCash}
+                                    </span>
+                                </p>
                             </div>
-
+                            
                             <div class="card"
                                 style="
-                                    width:220px;
-                                    background:#1f2937;
+                                    background:#1e293b;
+                                    padding:20px;
                                 ">
-
+                                
                                 <h3>
                                     ⚡ Productivity
                                 </h3>
-
-                                <p style="
-                                    font-size:34px;
-                                    color:#60a5fa;
-                                    font-weight:bold;
-                                ">
-
-                                    ${data.productivity}
-
+                                
+                                <p>
+                                    Player:
+                                    <span style="
+                                        color:#22c55e;
+                                        font-weight:bold;
+                                    ">
+                                        ${data.productivity}
+                                    </span>
                                 </p>
-
+                                <p>
+                                    AI:
+                                    <span style="
+                                        color:#60a5fa;
+                                        font-weight:bold;
+                                    ">
+                                        ${data.aiProductivity}
+                                    </span>
+                                </p>
                             </div>
-
+                            
                             <div class="card"
                                 style="
-                                    width:220px;
-                                    background:#1f2937;
+                                    background:#1e293b;
+                                    padding:20px;
                                 ">
-
+                                
                                 <h3>
                                     📈 Total Turns
                                 </h3>
-
+                                
                                 <p style="
-                                    font-size:34px;
+                                    font-size:28px;
                                     color:#facc15;
                                     font-weight:bold;
                                 ">
-
                                     ${data.turn}
-
                                 </p>
-
                             </div>
-
                         </div>
-
-                        <div style="
-                            margin-top:45px;
-                        ">
-
-                            <h2>
-                                🤖 AI Final Stats
-                            </h2>
-
-                            <p style="
-                                font-size:18px;
-                            ">
-
-                                AI Cash:
-                                $${data.aiCash}
-
-                            </p>
-
-                            <p style="
-                                font-size:18px;
-                            ">
-
-                                AI Productivity:
-                                ${data.aiProductivity}
-
-                            </p>
-
-                        </div>
-
                     </div>
                 `;
 
