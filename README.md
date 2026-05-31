@@ -1,3 +1,4 @@
+# TechCorp Simulator
 
 TechCorp Simulator is a turn-based business management game built with Java and Spring Boot.
 
@@ -45,4 +46,3 @@ Then open:
 ```text
 http://localhost:8080
 ```
-# techcorp-simulator
