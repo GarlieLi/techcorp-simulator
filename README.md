@@ -1,4 +1,3 @@
-# TechCorp Simulator
 
 TechCorp Simulator is a turn-based business management game built with Java and Spring Boot.
 
