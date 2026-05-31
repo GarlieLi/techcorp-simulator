@@ -313,4 +313,10 @@ public class GameController {
                 company.calculateTotalProductivity()
         );
     }
+
+    @GetMapping("/game/restart")
+    public Map<String, Object> restartGame() {
+        gameService.restartGame();
+        return gameState();
+    }
 }

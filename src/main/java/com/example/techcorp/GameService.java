@@ -918,4 +918,81 @@ public class GameService {
     public String getWinner() {
         return winner;
     }
+
+    public void restartGame() {
+        
+        company = new Company(
+            "TechCorp",
+            50000
+        );
+        
+        aiCompany = new Company(
+            "AI Corp",
+            50000
+        );
+        
+        turn = 1;
+        
+        aiDifficulty = "NORMAL";
+        
+        gameStarted = false;
+        
+        gameOver = false;
+        
+        winner = "";
+        
+        turnLog = "Game started.";
+        
+        company.hire(
+            new Developer(
+                "Anna",
+                10,
+                6000
+            )
+        );
+        
+        company.hire(
+            new Tester(
+                "Piotr",
+                6,
+                4000
+            )
+        );
+        
+        company.hire(
+            new Manager(
+                "Ewa",
+                5,
+                5000
+            )
+        );
+        
+        aiCompany.hire(
+            new Developer(
+                "AI Dev",
+                10,
+                6000
+            )
+        );
+        
+        aiCompany.hire(
+            new Tester(
+                "AI Tester",
+                6,
+                4000
+            )
+        );
+        
+        aiCompany.hire(
+            new Manager(
+                "AI Manager",
+                5,
+                5000
+            )
+        );
+        
+        addProjects(company);
+        
+        addProjects(aiCompany);
+    }
 }

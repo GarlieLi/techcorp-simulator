@@ -324,6 +324,15 @@
             loadGameState();
         }
 
+        async function restartGame() {
+            
+            await fetch(
+                "/game/restart"
+            );
+            
+            location.reload();
+        }
+
         function updateUI(data) {
 
             const difficultyMenu =
@@ -357,24 +366,28 @@
                 );
 
             if (data.gameStarted) {
-
-                difficultyMenu.style.display =
-                    "none";
-
-                actionButtons.style.display =
-                    "flex";
-
-                mainLayout.style.display =
-                    "flex";
-
+                
+                difficultyMenu.style.display = "flex";
+                
+                actionButtons.style.display = "flex";
+                
+                mainLayout.style.display = "flex";
+                
+                difficultyMenu.style.display = "none";
+                
                 document.getElementById(
                     "turnInfo"
                 ).textContent =
                     "Turn: " + data.turn;
             }
-
             else {
-
+                
+                difficultyMenu.style.display = "flex";
+                
+                actionButtons.style.display = "none";
+                
+                mainLayout.style.display = "none";
+                
                 document.getElementById(
                     "turnInfo"
                 ).textContent = "";
@@ -706,6 +719,11 @@
                                 ">
                                     ${data.turn}
                                 </p>
+
+                                <button onclick="restartGame()">
+                                    Restart Game
+                                </button>
+
                             </div>
                         </div>
                     </div>
