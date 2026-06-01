@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST API controller for the TechCorp web game.
+ * Receives HTTP requests from the frontend
+ * and delegates game actions to GameService.
+ */
+
 @RestController
 public class GameController {
 

@@ -4,6 +4,13 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Console user interface for the game.
+ * Handles all terminal input and output,
+ * including menus, status displays,
+ * project selection, and game results.
+ */
+
 public class ConsoleUI {
 
     private final Scanner scanner = new Scanner(System.in);

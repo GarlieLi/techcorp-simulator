@@ -3,6 +3,12 @@ package com.example.techcorp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a business project in the simulator.
+ * Stores project information, progress tracking,
+ * assigned workers, rewards, and project status.
+ */
+
 public class Project {
 
     private String name;

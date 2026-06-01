@@ -3,6 +3,13 @@ package com.example.techcorp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Main game controller.
+ * Handles game flow, player actions, AI actions,
+ * turn progression, win/lose conditions,
+ * project processing, and company expansion.
+ */
+
 public class GameEngine {
 
     private static final double INTERN_HIRE_COST = 1000;
@@ -55,6 +62,9 @@ public class GameEngine {
             "Game should start in running state.";
     }
 
+// Main game loop.
+// Repeats until player exits or a win/loss condition is reached.
+
     public void start() {
         
         while (running) {
@@ -96,6 +106,9 @@ public class GameEngine {
         }
     }
 
+// Handles player menu selections
+// (view status, accept projects, expand team, end turn, etc.).
+
     private boolean handleChoice(int choice) {
 
         return switch (choice) {
@@ -132,6 +145,10 @@ public class GameEngine {
             }
         };
     }
+
+// Processes end-of-turn logic:
+// project progress, salary payments,
+// rewards collection, and turn summary.
 
     private boolean resolveTurnEnd(List<String> aiActions) {
         
@@ -367,6 +384,9 @@ public class GameEngine {
     return true;
     }
 
+// Distributes company productivity
+// across all active projects for one turn.
+
     private List<String> progressAllProjects(Company targetCompany){
 
         List<String> summary = new ArrayList<>();
@@ -459,6 +479,8 @@ public class GameEngine {
         return summary;
     }
 
+// Project management actions.
+
     private boolean acceptProject() {
 
         int index = ui.chooseAvailableProject(company);
@@ -510,6 +532,9 @@ public class GameEngine {
         return false;
     }
 
+// Team expansion menu.
+// Allows hiring employees or purchasing tools.
+
     private boolean expandTeam() {
         
         while (true) {
@@ -540,6 +565,8 @@ public class GameEngine {
             }
         }
     }
+
+// Player expansion actions.
 
     private void hireIntern() {
 
@@ -592,6 +619,8 @@ public class GameEngine {
         return;
     }
 
+// Adds a newly hired worker to all non-finished projects.
+
     private void addWorkerToCompanyProjects(Company targetCompany, Workable worker) {
 
         for (Project project : targetCompany.getProjects()) {
@@ -601,6 +630,9 @@ public class GameEngine {
             }
         }
     }
+
+// Creates an AI company with the same
+// starting resources as the player.
 
     private Company initializeAiCompany(Company player) {
         
@@ -657,6 +689,10 @@ public class GameEngine {
         }
         throw new IllegalStateException("Unknown employee type.");
     }
+
+// Main AI decision-making routine.
+// AI chooses projects and expands team
+// based on cash, productivity, and difficulty.
 
     private List<String> processAiTurn() {
 
@@ -779,6 +815,9 @@ public class GameEngine {
         return aiActions;
     }
 
+// AI project selection strategy.
+// Chooses the most profitable project.
+
     private Project chooseBestProject(Company targetCompany) {
         
         Project bestProject = null;
@@ -818,6 +857,9 @@ public class GameEngine {
         }
         return bestProject;
     }
+
+// AI expansion strategy.
+// Decides whether to hire interns, FreelancerBots, or buy tools.
 
     private boolean tryExpandAiTeam(
         List<String> aiActions,
@@ -906,6 +948,8 @@ public class GameEngine {
         return false;
     }
 
+// Utility method for counting active projects.
+
     private int countActiveProjects(Company targetCompany) {
 
         int count = 0;
@@ -920,6 +964,8 @@ public class GameEngine {
 
         return count;
     }
+
+// Checks game-ending conditions and determines the winner.
 
     private void advanceTurn() {
 
@@ -960,6 +1006,8 @@ public class GameEngine {
             ui.showGameOver("AI WINS", company, aiCompany);
         }
     }
+
+// Returns true when all projects have been completed.
 
     private boolean hasCompletedAllProjects(Company targetCompany) {
 

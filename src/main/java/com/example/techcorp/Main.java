@@ -1,5 +1,11 @@
 package com.example.techcorp;
 
+/**
+ * Entry point of the TechCorp Business Simulator.
+ * Creates the initial company, employees, projects,
+ * user interface, and starts the game.
+ */
+
 public class Main {
 
     public static void main(String[] args) {

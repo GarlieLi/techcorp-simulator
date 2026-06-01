@@ -3,6 +3,12 @@ package com.example.techcorp;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Service layer for the web version of TechCorp Simulator.
+ * Handles game state, player actions, AI actions,
+ * turn progression, and game results.
+ */
+
 public class GameService {
 
     private Company company;
@@ -94,6 +100,8 @@ public class GameService {
         addProjects(aiCompany);
     }
 
+// Creates and adds all available projects to a company at game startup.
+
         private void addProjects(
             Company target) {
                 
@@ -155,6 +163,8 @@ public class GameService {
         return turn;
     }
 
+// Accepts a project selected by the player.
+
     public String acceptProject(
         String projectName) {
             
@@ -173,6 +183,9 @@ public class GameService {
         }
         return "Project not found.";
     }
+
+// Ends the current turn and processes
+// project progress, salaries, rewards, and AI actions.
 
     public String endTurn() {
 
@@ -222,6 +235,8 @@ public class GameService {
         
         return "Turn ended.";
     }
+
+// Player team expansion actions.
 
     public String hireIntern() {
 
@@ -305,6 +320,8 @@ public class GameService {
             + " purchased.";
     }
 
+// Adds a newly hired worker to all active projects.
+
     private void addWorkerToCompanyProjects(
             Company targetCompany,
             Workable worker) {
@@ -319,6 +336,8 @@ public class GameService {
             }
         }
     }
+
+// Project management actions.
 
     public String holdProject(String projectName) {
         
@@ -381,6 +400,9 @@ public class GameService {
     public Company getAiCompany() {
         return aiCompany;
     }
+
+// Main AI decision-making process.
+// Controls project selection and company expansion.
 
     private void processAiTurn(
             StringBuilder log) {
@@ -530,6 +552,9 @@ public class GameService {
         }
     }
 
+// Chooses the most profitable project
+// available for the AI company.
+
     private Project chooseBestProject(
             Company targetCompany) {
 
@@ -585,6 +610,8 @@ public class GameService {
         return bestProject;
     }
 
+// Counts active projects for workload planning.
+
     public int countActiveProjects(
             Company targetCompany) {
 
@@ -604,6 +631,8 @@ public class GameService {
         }
         return count;
     }
+
+// AI hiring and expansion strategy
 
     private boolean tryExpandAiTeam(
             StringBuilder log,
@@ -746,6 +775,8 @@ public class GameService {
         return false;
     }
 
+// Sets AI difficulty before the game starts.
+
     public void setAiDifficulty(
             String difficulty) {
 
@@ -768,6 +799,8 @@ public class GameService {
     public boolean isGameStarted() {
         return gameStarted;
     }
+
+// Checks whether all projects have been completed.
 
     private boolean hasCompletedAllProjects(
         Company targetCompany) {
@@ -793,6 +826,8 @@ public class GameService {
         }
         return true;
     }
+
+// Determines whether the game should end and calculates the winner.
 
     private void advanceTurn() {
         
@@ -840,6 +875,9 @@ public class GameService {
             winner = "AI WINS";
         }
     }
+
+// Distributes productivity across all active projects
+// and updates project progress for the turn.
 
     private void progressAllProjects(
             Company targetCompany) {
@@ -918,6 +956,8 @@ public class GameService {
     public String getWinner() {
         return winner;
     }
+
+// Resets the entire game to its initial state.
 
     public void restartGame() {
         
