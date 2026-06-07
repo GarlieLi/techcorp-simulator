@@ -5,8 +5,6 @@
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Difficulty.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Employee.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/FreelancerBot.java
-/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/GameEngine.java
-/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/GameService.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Intern.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Main.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Manager.java
@@ -18,3 +16,5 @@
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/Workable.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/api/GameController.java
 /workspaces/techcorp-simulator/src/main/java/com/example/techcorp/api/HealthController.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/engine/GameEngine.java
+/workspaces/techcorp-simulator/src/main/java/com/example/techcorp/engine/GameService.java
