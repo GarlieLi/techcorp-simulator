@@ -1,5 +1,10 @@
 package com.example.techcorp;
 
+/**
+ * Abstract base class representing an employee
+ * who contributes productivity and receives salary.
+ */
+
 public abstract class Employee {
 
     protected String name;

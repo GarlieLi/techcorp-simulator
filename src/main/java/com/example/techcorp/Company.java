@@ -3,6 +3,11 @@ package com.example.techcorp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a software company and manages its employees,
+ * projects, finances, automation tools, and overall operations.
+ */
+
 public class Company {
 
     private String name;
